@@ -401,26 +401,25 @@ const Products = () => {
         <div className="product-grid">
           {products.map(p => (
             <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <ScrollReveal className="glass product-card" style={{ padding: '2rem' }}>
-                <div className="product-image" style={{ background: 'white', borderRadius: '15px', overflow: 'hidden' }}>
+              <ScrollReveal className="glass product-card">
+                <div className="product-image">
                   {p.image_url ? (
                     <img 
                       src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`} 
                       alt={p.name} 
-                      style={{ width: '85%', height: '85%', objectFit: 'contain' }} 
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = ''; // Clear broken src
-                        e.target.style.display = 'none'; // Hide image
+                        e.target.src = '';
+                        e.target.style.display = 'none';
                         e.target.parentElement.innerHTML = '<div style="opacity: 0.2"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
                       }}
                     />
                   ) : <div style={{ opacity: 0.2 }}><ShoppingBag size={50} /></div>}
                 </div>
                 <div className="product-info">
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{p.name}</h3>
-                  <p style={{ lineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', color: '#94A3B8' }}>{p.description}</p>
-                  <div style={{ marginTop: '1.5rem', color: '#10B981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>Specs <ChevronRight size={18} /></div>
+                  <h3>{p.name}</h3>
+                  <p>{p.description}</p>
+                  <div className="product-link">Specs <ChevronRight size={18} /></div>
                 </div>
               </ScrollReveal>
             </Link>
