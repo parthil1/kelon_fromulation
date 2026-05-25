@@ -89,12 +89,7 @@ const Navbar = () => {
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-content">
         <Link to="/" onClick={(e) => handleNavClick(e, 'home')} className="logo-link" style={{ zIndex: 1000 }}>
-          <div className="logo-icon-container">
-            <FlaskConical size={24} className="logo-icon" />
-          </div>
-          <span className="logo-text">
-            KELON <span className="logo-accent">FORMULATION</span>
-          </span>
+          <img src="/kelon-logo.jpeg" alt="Kelon Formulation" className="nav-logo-image" />
         </Link>
 
         <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ zIndex: 2001 }}>

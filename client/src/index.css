@@ -113,54 +113,23 @@ h1, h2, h3, h4 {
     padding: 0 2rem;
   }
 }
-
 .logo-link {
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 1rem;
 }
 
-.logo-icon-container {
-  width: 42px;
-  height: 42px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: 0.3s ease;
+.nav-logo-image {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: 0.3s;
 }
 
-.logo-icon {
-  color: var(--primary);
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4));
-}
-
-.logo-link:hover .logo-icon-container {
-  background: rgba(16, 185, 129, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
-}
-
-.logo-text {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  white-space: nowrap;
-}
-
-.logo-accent {
-  color: var(--primary);
-  font-weight: 400;
-  letter-spacing: 1px;
+@media (max-width: 480px) {
+  .nav-logo-image {
+    height: 36px;
+  }
 }
 
 @media (max-width: 480px) {
