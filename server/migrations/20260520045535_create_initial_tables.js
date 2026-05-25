@@ -37,7 +37,6 @@ exports.up = function(knex) {
       table.string('email').notNullable();
       table.string('phone');
       table.text('message');
-      table.string('status').defaultTo('new');
       table.timestamps(true, true);
     });
 };

@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -25,19 +25,51 @@ const upload = multer({
   }
 });
 
-// Get all products with optional filtering by category
+// Get all products with optional filtering, search, and pagination
 router.get('/', async (req, res) => {
-  const { category_id, is_featured } = req.query;
+  const { category_id, is_featured, page = 1, limit = 10, search = '' } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
     let query = db('products')
-      .leftJoin('categories', 'products.category_id', 'categories.id')
-      .select('products.*', 'categories.name as category_name');
-      
-    if (category_id) query = query.where({ 'products.category_id': category_id });
-    if (is_featured) query = query.where({ 'products.is_featured': true });
-    
-    const products = await query;
-    res.json(products);
+      .leftJoin('categories', 'products.category_id', 'categories.id');
+
+    let totalQuery = db('products');
+
+    if (category_id && category_id !== 'all') {
+      query = query.where({ 'products.category_id': category_id });
+      totalQuery = totalQuery.where({ category_id });
+    }
+
+    if (is_featured) {
+      query = query.where({ 'products.is_featured': true });
+      totalQuery = totalQuery.where({ is_featured: true });
+    }
+
+    if (search) {
+      const searchLower = `%${search.toLowerCase()}%`;
+      query = query.where(function () {
+        this.where('products.name', 'like', searchLower)
+          .orWhere('products.description', 'like', searchLower);
+      });
+      totalQuery = totalQuery.where(function () {
+        this.where('name', 'like', searchLower)
+          .orWhere('description', 'like', searchLower);
+      });
+    }
+
+    const [countRes] = await totalQuery.count('id as total');
+    const total = countRes.total;
+
+    const products = await query
+      .select('products.*', 'categories.name as category_name')
+      .orderBy('products.created_at', 'desc')
+      .limit(limit)
+      .offset(offset);
+
+    // If it's not a paginated request from admin (no page param provided), 
+    // we keep old behavior for public pages if needed, but here we return a consistent object.
+    res.json({ data: products, total });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -76,7 +108,7 @@ router.post('/', upload.single('image'), async (req, res) => {
   const { category_id, name, description, benefits, ingredients, is_featured, flavours, packing_material, packing_size, shelf_life, moq } = req.body;
   const slug = req.body.slug || generateSlug(name);
   const image_url = req.file ? `/uploads/${req.file.filename}` : req.body.image_url;
-  
+
   try {
     const [id] = await db('products').insert({
       category_id, name, slug, description, benefits, ingredients, image_url, is_featured: is_featured === 'true',
@@ -93,7 +125,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const { category_id, name, description, benefits, ingredients, is_featured, flavours, packing_material, packing_size, shelf_life, moq } = req.body;
   const slug = req.body.slug || generateSlug(name);
-  
+
   const updateData = {
     category_id, name, slug, description, benefits, ingredients, is_featured: is_featured === 'true',
     flavours, packing_material, packing_size, shelf_life, moq

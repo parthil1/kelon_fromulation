@@ -15,13 +15,23 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all inquiries (Admin only)
+// Get all inquiries (Admin only) with pagination
 router.get('/', async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
+    const [countRes] = await db('inquiries').count('id as total');
+    const total = countRes.total;
+
     const inquiries = await db('inquiries')
       .leftJoin('products', 'inquiries.product_id', 'products.id')
-      .select('inquiries.*', 'products.name as product_name');
-    res.json(inquiries);
+      .select('inquiries.*', 'products.name as product_name')
+      .orderBy('inquiries.created_at', 'desc')
+      .limit(limit)
+      .offset(offset);
+
+    res.json({ data: inquiries, total });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

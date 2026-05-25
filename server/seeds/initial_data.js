@@ -11,6 +11,24 @@ exports.seed = async function(knex) {
   await knex('categories').del();
   await knex('users').del();
 
+  const [testProdId] = await knex('categories').insert({ name: 'Testing', slug: 'testing' });
+  const [prodId] = await knex('products').insert({ 
+    category_id: testProdId, 
+    name: 'Sample Product', 
+    slug: 'sample', 
+    description: 'test' 
+  });
+
+  await knex('inquiries').insert([
+    { 
+      product_id: prodId, 
+      name: 'John Smith', 
+      email: 'john@example.com', 
+      phone: '1234567890', 
+      message: 'I am interested in bulk ordering the Sample Product.'
+    }
+  ]);
+
   const hashedPassword = await bcrypt.hash('admin123', 10);
   await knex('users').insert([
     { username: 'admin', password: hashedPassword }
@@ -18,8 +36,9 @@ exports.seed = async function(knex) {
 
   const categoriesData = [
     { name: 'Effervescent Tablets', slug: 'effervescent-tablets', description: 'Fast-dissolving tablets for quick absorption.' },
-    { name: 'Tablets', slug: 'tablets', description: 'Compact and precise nutritional delivery.' },
-    { name: 'Capsules', slug: 'capsules', description: 'Premium quality hard and soft gel capsules.' }
+    { name: 'Standard Tablets', slug: 'standard-tablets', description: 'Precise dosing and coating options.' },
+    { name: 'Capsules', slug: 'capsules', description: 'Premium quality hard and soft gel capsules.' },
+    { name: 'Protein Powders', slug: 'protein-powders', description: 'High-purity, easy-mix formulations.' }
   ];
 
   for (const cat of categoriesData) {
@@ -54,7 +73,7 @@ exports.seed = async function(knex) {
           moq: '3000 Tubes'
         }
       ];
-    } else if (cat.name === 'Tablets') {
+    } else if (cat.name === 'Standard Tablets') {
       products = [
         { 
           name: 'Spirulina Tablets', 
@@ -67,6 +86,21 @@ exports.seed = async function(knex) {
           packing_size: '60 Tab, 120 Tab',
           shelf_life: '24 Months',
           moq: '1000 Bottles'
+        }
+      ];
+    } else if (cat.name === 'Protein Powders') {
+      products = [
+        {
+          name: 'Whey Protein Isolate',
+          slug: 'whey-protein-isolate',
+          description: 'Premium ultra-filtered whey protein for muscle growth.',
+          benefits: 'Muscle Building, Fast Recovery, High Bioavailability',
+          ingredients: 'Whey Protein Isolate, Soy Lecithin',
+          flavours: 'Chocolate, Vanilla, Berry',
+          packing_material: 'Jar, Pouch',
+          packing_size: '1kg, 2kg',
+          shelf_life: '24 Months',
+          moq: '500 Jars'
         }
       ];
     }
