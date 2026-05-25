@@ -88,7 +88,7 @@ const Navbar = () => {
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-content">
-        <Link to="/" onClick={(e) => handleNavClick(e, 'home')} className="logo-link" style={{ zIndex: 1001 }}>
+        <Link to="/" onClick={(e) => handleNavClick(e, 'home')} className="logo-link" style={{ zIndex: 1000 }}>
           <div className="logo-icon-container">
             <FlaskConical size={24} className="logo-icon" />
           </div>
@@ -97,7 +97,7 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ zIndex: 1001 }}>
+        <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ zIndex: 2001 }}>
           {isMenuOpen ? <Plus size={32} style={{ transform: 'rotate(45deg)' }} /> : <Menu size={32} />}
         </button>
 

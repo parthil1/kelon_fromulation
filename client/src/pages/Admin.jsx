@@ -212,7 +212,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="container" style={{ paddingTop: '8rem' }}>
+    <div className="container" style={{ paddingTop: '12rem', paddingBottom: '6rem' }}>
       <div className="glass" style={{ padding: '2rem', marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div>
           <h4 style={{ color: '#10B981', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '2px', marginBottom: '0.5rem' }}>Management Console</h4>
@@ -223,40 +223,16 @@ const Admin = () => {
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
+      <div className="admin-tabs">
         <button
           onClick={() => setActiveTab('products')}
-          style={{
-            padding: '1rem 2rem',
-            borderRadius: '12px',
-            border: '1px solid var(--border)',
-            background: activeTab === 'products' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-            color: activeTab === 'products' ? '#10B981' : '#94A3B8',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.8rem',
-            fontWeight: 600,
-            transition: 'all 0.3s'
-          }}
+          className={`admin-tab ${activeTab === 'products' ? 'active' : ''}`}
         >
           <Package size={20} /> Inventory
         </button>
         <button
           onClick={() => setActiveTab('inquiries')}
-          style={{
-            padding: '1rem 2rem',
-            borderRadius: '12px',
-            border: '1px solid var(--border)',
-            background: activeTab === 'inquiries' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-            color: activeTab === 'inquiries' ? '#10B981' : '#94A3B8',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.8rem',
-            fontWeight: 600,
-            transition: 'all 0.3s'
-          }}
+          className={`admin-tab ${activeTab === 'inquiries' ? 'active' : ''}`}
         >
           <MessageSquare size={20} /> Client Inquiries
         </button>
@@ -307,34 +283,34 @@ const Admin = () => {
 
           <div style={{ overflowX: 'auto' }}>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: '#10B981', fontSize: '0.9rem', textTransform: 'uppercase' }}>
-                <th style={{ padding: '1rem' }}>Name</th>
-                <th style={{ padding: '1rem' }}>Category</th>
-                <th style={{ padding: '1rem' }}>Status</th>
-                <th style={{ padding: '1rem' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(p => (
-                <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
-                  <td style={{ padding: '1.2rem 1rem', color: '#94A3B8' }}>{p.category_name}</td>
-                  <td style={{ padding: '1.2rem 1rem' }}>
-                    <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>Active</span>
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem' }}>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <Edit onClick={() => openEditModal(p)} size={16} style={{ cursor: 'pointer', color: '#94A3B8' }} />
-                      <Trash2 onClick={() => openDeleteModal(p)} size={16} style={{ cursor: 'pointer', color: '#EF4444' }} />
-                    </div>
-                  </td>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: '#10B981', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '1rem' }}>Name</th>
+                  <th style={{ padding: '1rem' }}>Category</th>
+                  <th style={{ padding: '1rem' }}>Status</th>
+                  <th style={{ padding: '1rem' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {products.map(p => (
+                  <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
+                    <td style={{ padding: '1.2rem 1rem', color: '#94A3B8' }}>{p.category_name}</td>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>Active</span>
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      <div style={{ display: 'flex', gap: '1rem' }}>
+                        <Edit onClick={() => openEditModal(p)} size={16} style={{ cursor: 'pointer', color: '#94A3B8' }} />
+                        <Trash2 onClick={() => openDeleteModal(p)} size={16} style={{ cursor: 'pointer', color: '#EF4444' }} />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination Controls */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '2rem' }}>
