@@ -89,8 +89,8 @@ const Navbar = () => {
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-content">
         <Link to="/" onClick={(e) => handleNavClick(e, 'home')} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'white', textDecoration: 'none', zIndex: 1001 }}>
-          <FlaskConical color="#10B981" size={28} />
-          <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '1px' }}>NUTRACRAFT</span>
+          <img src="/kelon-logo.svg" alt="Kelon Logo" style={{ height: '40px', width: 'auto' }} />
+          {/* <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '1.5px' }}>KELON FORMULATION</span> */}
         </Link>
 
         <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ zIndex: 1001 }}>
@@ -152,7 +152,7 @@ const AboutSummary = () => (
         <h2 style={{ color: '#10B981', fontSize: '0.95rem', textTransform: 'uppercase', marginBottom: '1.2rem', letterSpacing: '2.5px', fontWeight: 700 }}>Your Manufacturing Partner</h2>
         <h1 style={{ fontSize: '3rem', marginBottom: '1.5rem', lineHeight: '1.1' }}>Science-First Formulations <br />at Scale</h1>
         <p style={{ color: '#94A3B8', fontSize: '1.2rem', maxWidth: '850px', marginBottom: '3rem', lineHeight: '1.7' }}>
-          NutraCraft specializes in developing world-class nutritional solutions. We bridge the gap between complex science and consumer wellness through our advanced, certified manufacturing processes. Safe, effective, and sustainably developed—every time.
+          Kelon Formulation specializes in developing world-class nutritional solutions. We bridge the gap between complex science and consumer wellness through our advanced, certified manufacturing processes. Safe, effective, and sustainably developed—every time.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1.8rem', paddingTop: '2.5rem', borderTop: '1px solid var(--border)' }}>
           {['WHO GMP CERTIFIED', 'HACCP COMPLIANT', 'ISO 22000:2018', 'FDA REGISTERED', 'FSSC 22000', 'cGMP 21 CFR'].map((cert, i) => (
@@ -172,7 +172,7 @@ const LegacyAbout = () => (
       <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '3.5px', marginBottom: '1.2rem', fontWeight: 700 }}>Our Legacy</h4>
       <h1 className="responsive-h1" style={{ fontSize: '3.8rem', marginBottom: '2rem', fontWeight: 800, lineHeight: '1.1' }}>State-of-the-Art <br /><span style={{ color: 'var(--primary)' }}>Industrial Prowess</span></h1>
       <p style={{ color: '#94A3B8', fontSize: '1.2rem', maxWidth: '850px', margin: '0 auto', lineHeight: '1.7' }}>
-        NutraCraft Manufacturing is a leader in high-performance supplement production. Our mission is to accelerate wellness worldwide through uncompromising innovation in formulation and design.
+        Kelon Formulation Manufacturing is a leader in high-performance supplement production. Our mission is to accelerate wellness worldwide through uncompromising innovation in formulation and design.
       </p>
     </ScrollReveal>
 
@@ -270,9 +270,9 @@ const ContactSection = () => {
       <div className="grid-contact">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {[
-            { icon: <Mail size={24} />, title: 'Email Us', val: 'partners@nutracraft.com', sub: 'Technical Queries' },
+            { icon: <Mail size={24} />, title: 'Email Us', val: 'partners@kelon.com', sub: 'Technical Queries' },
             { icon: <Phone size={24} />, title: 'Direct Line', val: '+1 (555) 987-6543', sub: '9 AM - 6 PM EST' },
-            { icon: <Factory size={24} />, title: 'Facility', val: 'Industrial Zone Block 5, NutraCraft HQ', sub: 'Main Operations' }
+            { icon: <Factory size={24} />, title: 'Facility', val: 'Industrial Zone Block 5, Kelon Formulation HQ', sub: 'Main Operations' }
           ].map((item, i) => (
             <ScrollReveal key={i} className="glass" style={{ padding: '2.5rem 2rem', transitionDelay: `${i * 0.15}s` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -513,9 +513,8 @@ const App = () => (
     </div>
     <footer className="footer-main">
       <div className="container footer-content">
-        <p className="footer-brand-text">
-          © 2026 NUTRACRAFT MANUFACTURING HUB. <br />
-          <span style={{ color: 'var(--primary)', fontSize: '0.8rem', letterSpacing: '1px' }}>ADVANCED B2B SOLUTIONS.</span>
+        <p className="footer-brand-text" style={{ fontWeight: 800, letterSpacing: '2px', color: 'white' }}>
+          KELON FORMULATION
         </p>
         <div className="footer-nav-links">
           <a href="#" className="footer-link">Privacy Policy</a>
