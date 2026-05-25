@@ -90,7 +90,7 @@ const Navbar = () => {
       <div className="container nav-content">
         <Link to="/" onClick={(e) => handleNavClick(e, 'home')} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'white', textDecoration: 'none', zIndex: 1001 }}>
           <img src="/kelon-logo.svg" alt="Kelon Logo" style={{ height: '40px', width: 'auto' }} />
-          {/* <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '1.5px' }}>KELON FORMULATION</span> */}
+          <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '1.5px' }}>KELON FORMULATION</span>
         </Link>
 
         <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ zIndex: 1001 }}>
