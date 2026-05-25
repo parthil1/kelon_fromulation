@@ -214,7 +214,7 @@ const Capabilities = () => (
         <ScrollReveal key={i} className="glass product-card" style={{ display: 'flex', flexDirection: 'column', transitionDelay: `${i * 0.1}s`, padding: '2rem' }}>
           <div className="product-image" style={{ background: 'white', padding: '1.5rem', overflow: 'hidden', marginBottom: '2rem', borderRadius: '15px' }}>
             {cat.img ? (
-              <img src={`http://localhost:5000${cat.img}`} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={`${import.meta.env.VITE_BASE_URL}${cat.img}`} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
               <ShoppingBag size={56} opacity={0.1} color="black" />
             )}
@@ -242,7 +242,7 @@ const ContactSection = () => {
     e.preventDefault();
     setStatus('sending');
     try {
-      await axios.post('http://localhost:5000/api/inquiries', formData);
+      await axios.post(`${import.meta.env.VITE_API_URL}/inquiries`, formData);
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch {
@@ -337,14 +337,14 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/categories').then(res => setCategories(res.data));
+    axios.get(`${import.meta.env.VITE_API_URL}/categories`).then(res => setCategories(res.data));
   }, []);
 
   useEffect(() => {
     setLoading(true);
     const url = activeCategory 
-      ? `http://localhost:5000/api/products?category_id=${activeCategory}`
-      : 'http://localhost:5000/api/products';
+      ? `${import.meta.env.VITE_API_URL}/products?category_id=${activeCategory}`
+      : `${import.meta.env.VITE_API_URL}/products`;
     axios.get(url).then(res => {
       setProducts(res.data);
       setLoading(false);
@@ -373,7 +373,7 @@ const Products = () => {
             <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <ScrollReveal className="glass product-card" style={{ padding: '2rem' }}>
                 <div className="product-image" style={{ background: 'white', borderRadius: '15px' }}>
-                  {p.image_url ? <img src={`http://localhost:5000${p.image_url}`} alt={p.name} style={{ width: '85%', height: '85%', objectFit: 'contain' }} /> : <ShoppingBag size={50} opacity={0.2} />}
+                  {p.image_url ? <img src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`} alt={p.name} style={{ width: '85%', height: '85%', objectFit: 'contain' }} /> : <ShoppingBag size={50} opacity={0.2} />}
                 </div>
                 <div className="product-info">
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{p.name}</h3>
@@ -396,7 +396,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`http://localhost:5000/api/products/${slug}`)
+    axios.get(`${import.meta.env.VITE_API_URL}/products/${slug}`)
       .then(res => { setProduct(res.data); setLoading(false); })
       .catch(() => { setProduct(null); setLoading(false); });
   }, [slug]);
@@ -410,7 +410,7 @@ const ProductDetail = () => {
       <div className="product-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '6rem' }}>
         <ScrollReveal className="glass" style={{ padding: '3rem', height: 'fit-content' }}>
           <div style={{ aspectRatio: '1', background: 'white', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {product.image_url ? <img src={`http://localhost:5000${product.image_url}`} alt={product.name} style={{ width: '90%', height: '90%', objectFit: 'contain' }} /> : <ShoppingBag size={140} opacity={0.1} />}
+            {product.image_url ? <img src={`${import.meta.env.VITE_BASE_URL}${product.image_url}`} alt={product.name} style={{ width: '90%', height: '90%', objectFit: 'contain' }} /> : <ShoppingBag size={140} opacity={0.1} />}
           </div>
         </ScrollReveal>
         <div>

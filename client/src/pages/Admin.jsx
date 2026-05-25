@@ -43,8 +43,8 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const prodRes = await axios.get('http://localhost:5000/api/products');
-      const inqRes = await axios.get('http://localhost:5000/api/inquiries');
+      const prodRes = await axios.get(`${import.meta.env.VITE_API_URL}/products`);
+      const inqRes = await axios.get(`${import.meta.env.VITE_API_URL}/inquiries`);
       setProducts(prodRes.data);
       setInquiries(inqRes.data);
     } catch (err) {
@@ -53,14 +53,14 @@ const Admin = () => {
   };
 
   const fetchCategories = async () => {
-    const res = await axios.get('http://localhost:5000/api/categories');
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/categories`);
     setCategories(res.data);
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { username, password });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, { username, password });
       localStorage.setItem('token', res.data.token);
       setIsLoggedIn(true);
     } catch (err) {
@@ -76,11 +76,11 @@ const Admin = () => {
 
     try {
       if (editingProduct) {
-        await axios.put(`http://localhost:5000/api/products/${editingProduct.id}`, formData, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/products/${editingProduct.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        await axios.post('http://localhost:5000/api/products', formData, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/products`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
@@ -93,7 +93,7 @@ const Admin = () => {
 
   const handleDeleteProduct = async () => {
     if (productToDelete) {
-      await axios.delete(`http://localhost:5000/api/products/${productToDelete.id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/products/${productToDelete.id}`);
       fetchData();
       setIsDeleteModalOpen(false);
       setProductToDelete(null);
