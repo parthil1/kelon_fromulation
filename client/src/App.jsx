@@ -379,7 +379,7 @@ const Products = () => {
   }, [activeCategory]);
 
   return (
-    <div className="container" style={{ paddingTop: '10rem', paddingBottom: '6rem' }}>
+    <div className="container" style={{ paddingTop: '8rem', paddingBottom: '6rem' }}>
       <ScrollReveal style={{ textAlign: 'center', marginBottom: '5rem' }}>
         <h4 style={{ color: '#10B981', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '1.5rem', fontWeight: 700 }}>Manufacturing Catalog</h4>
         <h1 style={{ fontSize: '4.5rem', fontWeight: 800 }}>Explore Solutions</h1>
@@ -393,14 +393,29 @@ const Products = () => {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '6rem', fontSize: '1.5rem', color: '#10B981' }}>Synchronizing Catalog...</div>
+        <div className="loader-container">
+          <div className="spinner"></div>
+          <p>Synchronizing Catalog...</p>
+        </div>
       ) : products.length > 0 ? (
         <div className="product-grid">
           {products.map(p => (
             <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <ScrollReveal className="glass product-card" style={{ padding: '2rem' }}>
-                <div className="product-image" style={{ background: 'white', borderRadius: '15px' }}>
-                  {p.image_url ? <img src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`} alt={p.name} style={{ width: '85%', height: '85%', objectFit: 'contain' }} /> : <ShoppingBag size={50} opacity={0.2} />}
+                <div className="product-image" style={{ background: 'white', borderRadius: '15px', overflow: 'hidden' }}>
+                  {p.image_url ? (
+                    <img 
+                      src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`} 
+                      alt={p.name} 
+                      style={{ width: '85%', height: '85%', objectFit: 'contain' }} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = ''; // Clear broken src
+                        e.target.style.display = 'none'; // Hide image
+                        e.target.parentElement.innerHTML = '<div style="opacity: 0.2"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
+                      }}
+                    />
+                  ) : <div style={{ opacity: 0.2 }}><ShoppingBag size={50} /></div>}
                 </div>
                 <div className="product-info">
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{p.name}</h3>
@@ -454,17 +469,35 @@ const ProductDetail = () => {
     }
   };
 
-  if (loading) return <div className="container" style={{ paddingTop: '15rem', textAlign: 'center' }}><div className="animate-fade" style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: 700 }}>Retrieving Specifications...</div></div>;
+  if (loading) return (
+    <div className="container" style={{ paddingTop: '15rem', textAlign: 'center' }}>
+      <div className="loader-container">
+        <div className="spinner"></div>
+        <p>Retrieving Specifications...</p>
+      </div>
+    </div>
+  );
   if (!product) return <div className="container" style={{ paddingTop: '15rem', textAlign: 'center' }}><div className="glass" style={{ padding: '5rem', maxWidth: '600px', margin: '0 auto' }}><Package size={80} opacity={0.3} color="#ef4444" /><h1 style={{ marginTop: '2rem' }}>Entry Not Found</h1><Link to="/products" className="btn-primary" style={{ marginTop: '2rem' }}>Back to Catalog</Link></div></div>;
 
   return (
-    <div className="container" style={{ paddingTop: '10rem', paddingBottom: '8rem' }}>
+    <div className="container" style={{ paddingTop: '8rem', paddingBottom: '8rem' }}>
       <Link to="/products" style={{ color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '3rem', fontWeight: 700 }}><ChevronRight style={{ transform: 'rotate(180deg)' }} size={24} /> BACK TO CATALOG</Link>
       <div className="product-detail-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <ScrollReveal className="glass" style={{ padding: '2rem', height: 'fit-content' }}>
             <div className="detail-image-container">
-              {product.image_url ? <img src={`${import.meta.env.VITE_BASE_URL}${product.image_url}`} alt={product.name} /> : <ShoppingBag size={140} opacity={0.1} />}
+              {product.image_url ? (
+                <img 
+                  src={`${import.meta.env.VITE_BASE_URL}${product.image_url}`} 
+                  alt={product.name} 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '';
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<div style="opacity: 0.1"><svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
+                  }}
+                />
+              ) : <ShoppingBag size={140} opacity={0.1} />}
             </div>
           </ScrollReveal>
 

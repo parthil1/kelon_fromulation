@@ -182,7 +182,7 @@ const Admin = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="container" style={{ paddingTop: '10rem', maxWidth: '400px' }}>
+      <div className="container" style={{ paddingTop: '8rem', maxWidth: '400px' }}>
         <div className="glass" style={{ padding: '2.5rem' }}>
           <h2 style={{ marginBottom: '2rem', textAlign: 'center' }}>Admin Login</h2>
           <form onSubmit={handleLogin}>
@@ -212,7 +212,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="container" style={{ paddingTop: '12rem', paddingBottom: '6rem' }}>
+    <div className="container" style={{ paddingTop: '8rem', paddingBottom: '6rem' }}>
       <div className="glass" style={{ padding: '2rem', marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div>
           <h4 style={{ color: '#10B981', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '2px', marginBottom: '0.5rem' }}>Management Console</h4>

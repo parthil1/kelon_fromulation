@@ -714,8 +714,40 @@ input:focus, textarea:focus {
   border-color: rgba(16, 185, 129, 0.3);
 }
 
+
+/* Loading States */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+  gap: 1.5rem;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(16, 185, 129, 0.1);
+  border-left-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 768px) {
   .admin-tab {
     flex: 1 1 100%;
+  }
+  
+  /* Ensure content doesn't sit under fixed navbar on mobile */
+  .container {
+    padding-top: 8rem; 
   }
 }
