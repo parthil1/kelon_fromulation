@@ -288,7 +288,7 @@ const Admin = () => {
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: '#10B981', fontSize: '0.9rem', textTransform: 'uppercase' }}>
                   <th style={{ padding: '1rem' }}>Name</th>
                   <th style={{ padding: '1rem' }}>Category</th>
-                  <th style={{ padding: '1rem' }}>Status</th>
+                  <th style={{ padding: '1rem' }}>Shelf Life</th>
                   <th style={{ padding: '1rem' }}>Actions</th>
                 </tr>
               </thead>
@@ -298,7 +298,7 @@ const Admin = () => {
                     <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
                     <td style={{ padding: '1.2rem 1rem', color: '#94A3B8' }}>{p.category_name}</td>
                     <td style={{ padding: '1.2rem 1rem' }}>
-                      <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>Active</span>
+                      <span style={{ fontSize: '0.85rem', color: '#CBD5E1', fontWeight: 500 }}>{p.shelf_life || '24 Months'}</span>
                     </td>
                     <td style={{ padding: '1.2rem 1rem' }}>
                       <div style={{ display: 'flex', gap: '1rem' }}>
