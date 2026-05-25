@@ -88,9 +88,13 @@ const Navbar = () => {
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-content">
-        <Link to="/" onClick={(e) => handleNavClick(e, 'home')} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'white', textDecoration: 'none', zIndex: 1001 }}>
-          <img src="/kelon-logo.svg" alt="Kelon Logo" style={{ height: '40px', width: 'auto' }} />
-          {/* <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '1.5px' }}>KELON FORMULATION</span> */}
+        <Link to="/" onClick={(e) => handleNavClick(e, 'home')} className="logo-link" style={{ zIndex: 1001 }}>
+          <div className="logo-icon-container">
+            <FlaskConical size={24} className="logo-icon" />
+          </div>
+          <span className="logo-text">
+            KELON <span className="logo-accent">FORMULATION</span>
+          </span>
         </Link>
 
         <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ zIndex: 1001 }}>
@@ -390,7 +394,7 @@ const Products = () => {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '6rem', fontSize: '1.5rem', color: '#10B981' }}>Synchronizing Catalog...</div>
-      ) : (
+      ) : products.length > 0 ? (
         <div className="product-grid">
           {products.map(p => (
             <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -407,6 +411,14 @@ const Products = () => {
             </Link>
           ))}
         </div>
+      ) : (
+        <ScrollReveal className="glass" style={{ textAlign: 'center', padding: '8rem 2rem', border: '1px dashed var(--primary)', background: 'rgba(16, 185, 129, 0.03)' }}>
+          <Package size={80} style={{ marginBottom: '2rem', color: 'var(--primary)', opacity: 0.5 }} />
+          <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', fontWeight: 800 }}>Currently item is not available</h2>
+          <p style={{ color: '#94A3B8', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
+            We are currently optimizing our production lines for this category. Contact our team to discuss custom formulation requirements or check back soon for our updated catalog.
+          </p>
+        </ScrollReveal>
       )}
     </div>
   );
@@ -511,9 +523,9 @@ const App = () => (
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </div>
-    <footer className="footer-main">
+    {/* <footer className="footer-main">
       <div className="container footer-content">
-        <p className="footer-brand-text" style={{ fontWeight: 800, letterSpacing: '2px', color: 'white' }}>
+        <p className="footer-brand-text">
           KELON FORMULATION
         </p>
         <div className="footer-nav-links">
@@ -521,7 +533,7 @@ const App = () => (
           <a href="#" className="footer-link">Terms of Service</a>
         </div>
       </div>
-    </footer>
+    </footer> */}
   </Router>
 );
 

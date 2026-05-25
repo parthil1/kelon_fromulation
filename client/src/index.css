@@ -99,6 +99,75 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: 100% !important;
+  width: 100%;
+}
+
+.navbar .container {
+  max-width: 100% !important;
+  padding: 0 4rem;
+}
+
+@media (max-width: 768px) {
+  .navbar .container {
+    padding: 0 2rem;
+  }
+}
+
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-icon-container {
+  width: 42px;
+  height: 42px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: 0.3s ease;
+}
+
+.logo-icon {
+  color: var(--primary);
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4));
+}
+
+.logo-link:hover .logo-icon-container {
+  background: rgba(16, 185, 129, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+}
+
+.logo-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+}
+
+.logo-accent {
+  color: var(--primary);
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+  }
 }
 
 .nav-links {
@@ -336,8 +405,9 @@ h1, h2, h3, h4 {
 }
 
 .footer-brand-text {
-  color: var(--text-dim);
-  font-weight: 600;
+  color: white;
+  font-weight: 800;
+  letter-spacing: 2px;
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -379,18 +449,36 @@ h1, h2, h3, h4 {
     gap: 2rem;
   }
   
+  .footer-main {
+    padding: 2rem 0;
+  }
+
   .footer-content {
     flex-direction: column;
     text-align: center;
+    gap: 1.5rem;
   }
   
   .footer-nav-links {
     justify-content: center;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .footer-main {
+    padding: 1.5rem 0;
+  }
+
+  .footer-nav-links {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .footer-brand-text {
+    font-size: 0.85rem;
+  }
+
   .responsive-h1-large {
     font-size: 1.8rem;
   }
