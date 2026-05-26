@@ -135,6 +135,14 @@ canvas {
     padding: 0.25rem;
   }
 
+  .navbar {
+    background: #ffffff;
+  }
+
+  .navbar::before {
+    display: none;
+  }
+
   .nav-links {
     position: fixed;
     top: 0;
