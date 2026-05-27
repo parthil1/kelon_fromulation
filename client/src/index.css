@@ -241,12 +241,6 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 480px) {
-  .nav-logo-image {
-    height: 36px;
-  }
-}
-
-@media (max-width: 480px) {
   .logo-text {
     font-size: 1.2rem;
     letter-spacing: 1px;
@@ -665,10 +659,6 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 768px) {
-  :root {
-    --nav-height: 72px;
-  }
-
   .mobile-menu-toggle {
     display: block;
     padding: 0.25rem;
@@ -774,10 +764,6 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 480px) {
-  :root {
-    --nav-height: 64px;
-  }
-
   .container {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
