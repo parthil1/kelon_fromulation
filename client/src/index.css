@@ -179,49 +179,28 @@ h1, h2, h3, h4 {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 0.85rem 0;
+  padding: 0.7rem 0;
   z-index: 1000;
   transition: box-shadow 0.3s ease, padding 0.3s ease;
-  background: var(--nav-bg);
-  border-bottom: none;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Logo side stays pure white */
-.navbar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: clamp(220px, 28vw, 340px);
-  background: var(--nav-logo-zone);
-  z-index: 0;
-  border-right: 1px solid rgba(60, 93, 57, 0.06);
-  pointer-events: none;
+  background: #ffffff;
+  border-bottom: 3px solid #00c853;
+  box-shadow: 0 2px 14px rgba(27, 61, 26, 0.08);
 }
 
 .navbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-cta), var(--accent-teal), var(--accent-lime), var(--primary-cta));
-  z-index: 2;
+  display: none;
 }
 
 .navbar .container {
   position: relative;
   z-index: 1;
   max-width: 100% !important;
-  padding: 0 4rem;
+  padding: 0 2.5rem;
 }
 
 .navbar.scrolled {
-  box-shadow: var(--shadow-md), 0 4px 24px rgba(0, 200, 83, 0.15);
-  padding: 0.7rem 0;
+  box-shadow: 0 8px 20px rgba(27, 61, 26, 0.12);
+  padding: 0.6rem 0;
 }
 
 .nav-content {
@@ -241,8 +220,8 @@ h1, h2, h3, h4 {
   text-decoration: none;
   display: flex;
   align-items: center;
-  background: var(--nav-logo-zone);
-  padding: 0.35rem 0.75rem 0.35rem 0;
+  background: transparent;
+  padding: 0;
   border: none;
   box-shadow: none;
   position: relative;
@@ -250,7 +229,7 @@ h1, h2, h3, h4 {
 }
 
 .nav-logo-image {
-  height: 56px;
+  height: 64px;
   width: auto;
   object-fit: contain;
   transition: 0.3s;
@@ -274,16 +253,17 @@ h1, h2, h3, h4 {
 
 .nav-links {
   display: flex;
-  gap: 2.5rem;
+  gap: 2rem;
   list-style: none;
+  align-items: center;
 }
 
 .nav-links a {
-  color: var(--text-main);
+  color: #0f2c0e;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   transition: 0.3s;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
 }
 
 .nav-links a:hover,
@@ -298,12 +278,12 @@ h1, h2, h3, h4 {
 .nav-links a.active::after {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: -12px;
   left: 0;
   width: 100%;
-  height: 3px;
+  height: 4px;
   background: var(--primary-cta);
-  border-radius: 2px;
+  border-radius: 999px;
 }
 
 .btn-primary {
