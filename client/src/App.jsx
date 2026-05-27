@@ -95,7 +95,7 @@ const Navbar = () => {
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="container nav-content">
           <Link to="/" onClick={(e) => handleNavClick(e, 'home')} className="logo-link" style={{ zIndex: 2002 }}>
-            <img src="/kelon-logo.jpeg" alt="Kelon Formulation" className="nav-logo-image" />
+            <img src="/kelon-logo.svg" alt="Kelon Formulation" className="nav-logo-image" />
           </Link>
 
           <button
