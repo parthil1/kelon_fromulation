@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye, X, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye, X, ArrowLeft, Loader2 } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 const Admin = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -32,6 +33,7 @@ const Admin = () => {
   const [inquiryPage, setInquiryPage] = useState(1);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [copiedField, setCopiedField] = useState(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [tableCategory, setTableCategory] = useState('all');
@@ -154,15 +156,35 @@ const Admin = () => {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       if (previewUrl && previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrl);
       }
-      setImageFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      
+      setIsCompressing(true);
+      
+      const options = {
+        maxSizeMB: 1,           // Max size 1MB
+        maxWidthOrHeight: 1200, // Max dimensions 1200px
+        useWebWorker: true,
+      };
+
+      try {
+        const compressedFile = await imageCompression(file, options);
+        setImageFile(compressedFile);
+        const url = URL.createObjectURL(compressedFile);
+        setPreviewUrl(url);
+      } catch (error) {
+        console.error('Compression error:', error);
+        // Fallback to original file
+        setImageFile(file);
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -687,7 +709,12 @@ const Admin = () => {
                   }}
                 >
                   <input type="file" id="file-upload" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
-                  {previewUrl ? (
+                  {isCompressing ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                      <Loader2 size={32} className="animate-spin" color="var(--primary)" />
+                      <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Optimizing Image...</span>
+                    </div>
+                  ) : previewUrl ? (
                     <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
                       <img 
                         src={previewUrl} 
@@ -739,10 +766,15 @@ const Admin = () => {
                       <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Upload Product Mockup</span>
                     </label>
                   )}
-                  {imageFile && (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '1rem', fontWeight: 600 }}>
-                      Selected: {imageFile.name}
-                    </span>
+                  {imageFile && !isCompressing && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600 }}>
+                        Selected: {imageFile.name}
+                      </span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                        Optimized Size: {(imageFile.size / 1024).toFixed(1)} KB
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
