@@ -162,9 +162,9 @@ const Admin = () => {
       if (previewUrl && previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrl);
       }
-      
+
       setIsCompressing(true);
-      
+
       const options = {
         maxSizeMB: 1,           // Max size 1MB
         maxWidthOrHeight: 1200, // Max dimensions 1200px
@@ -366,10 +366,10 @@ const Admin = () => {
                     <td style={{ padding: '1.2rem 1rem' }}>
                       {p.image_url ? (
                         <div style={{ width: '50px', height: '50px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                          <img 
-                            src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`} 
-                            alt={p.name} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          <img
+                            src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
+                            alt={p.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             onError={(e) => { e.target.style.display = 'none'; }}
                           />
                         </div>
@@ -530,7 +530,7 @@ const Admin = () => {
                 <div className="inq-info-card card-sender">
                   <h4 className="inq-label">Sender Identity</h4>
                   <p className="sender-name">{selectedInquiry.name}</p>
-                  
+
                   <div className="contact-row" onClick={() => handleCopy(selectedInquiry.email, 'email')}>
                     <div className="contact-icon"><Mail size={18} /></div>
                     <div className="contact-info">
@@ -591,16 +591,16 @@ const Admin = () => {
       {isModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--bg)', zIndex: 10000, overflowY: 'auto', padding: '4rem 1rem' }}>
           <div className="container modal-fullscreen-inner" style={{ maxWidth: '1000px' }}>
-            <button 
-              onClick={closeModal} 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.6rem', 
-                background: 'none', 
-                border: 'none', 
-                color: 'var(--text-muted)', 
-                cursor: 'pointer', 
+            <button
+              onClick={closeModal}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
                 marginBottom: '2rem',
                 fontWeight: 600,
                 fontSize: '0.9rem',
@@ -692,12 +692,12 @@ const Admin = () => {
 
               <div style={{ marginBottom: '3rem' }}>
                 <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Product Imagery {editingProduct && '(Optional)'}</label>
-                <div 
-                  className="glass" 
-                  style={{ 
-                    padding: '2rem', 
-                    borderStyle: 'dashed', 
-                    textAlign: 'center', 
+                <div
+                  className="glass"
+                  style={{
+                    padding: '2rem',
+                    borderStyle: 'dashed',
+                    textAlign: 'center',
                     borderColor: (imageFile || (editingProduct && previewUrl)) ? 'var(--primary)' : 'var(--border)',
                     position: 'relative',
                     minHeight: '200px',
@@ -716,19 +716,19 @@ const Admin = () => {
                     </div>
                   ) : previewUrl ? (
                     <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
-                      <img 
-                        src={previewUrl} 
-                        alt="Preview" 
-                        style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }} 
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }}
                       />
                       <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.5rem' }}>
-                        <label 
-                          htmlFor="file-upload" 
-                          style={{ 
-                            background: 'white', 
-                            color: 'var(--primary)', 
-                            padding: '0.4rem', 
-                            borderRadius: '50%', 
+                        <label
+                          htmlFor="file-upload"
+                          style={{
+                            background: 'white',
+                            color: 'var(--primary)',
+                            padding: '0.4rem',
+                            borderRadius: '50%',
                             cursor: 'pointer',
                             boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
                             display: 'flex',
@@ -739,14 +739,14 @@ const Admin = () => {
                         >
                           <Edit size={16} />
                         </label>
-                        <button 
+                        <button
                           type="button"
                           onClick={handleRemoveImage}
-                          style={{ 
-                            background: '#EF4444', 
-                            color: 'white', 
-                            padding: '0.4rem', 
-                            borderRadius: '50%', 
+                          style={{
+                            background: '#EF4444',
+                            color: 'white',
+                            padding: '0.4rem',
+                            borderRadius: '50%',
                             cursor: 'pointer',
                             boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
                             border: 'none',
@@ -766,7 +766,7 @@ const Admin = () => {
                       <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Upload Product Mockup</span>
                     </label>
                   )}
-                  {imageFile && !isCompressing && (
+                  {/* {imageFile && !isCompressing && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600 }}>
                         Selected: {imageFile.name}
@@ -775,7 +775,7 @@ const Admin = () => {
                         Optimized Size: {(imageFile.size / 1024).toFixed(1)} KB
                       </span>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
