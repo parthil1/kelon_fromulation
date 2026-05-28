@@ -40,6 +40,8 @@ const Admin = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalInquiries, setTotalInquiries] = useState(0);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingInquiries, setIsLoadingInquiries] = useState(false);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -67,6 +69,7 @@ const Admin = () => {
   }, [isModalOpen, selectedInquiry, isDeleteModalOpen]);
 
   const fetchProducts = async () => {
+    setIsLoadingProducts(true);
     try {
       const params = {
         page: currentPage,
@@ -80,10 +83,13 @@ const Admin = () => {
     } catch (err) {
       console.error('Error fetching products', err);
       setProducts([]);
+    } finally {
+      setIsLoadingProducts(false);
     }
   };
 
   const fetchInquiries = async () => {
+    setIsLoadingInquiries(true);
     try {
       const params = { page: inquiryPage, limit: itemsPerPage };
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/inquiries`, { params });
@@ -91,6 +97,8 @@ const Admin = () => {
       setTotalInquiries(res.data.total || 0);
     } catch (err) {
       console.error('Error fetching inquiries', err);
+    } finally {
+      setIsLoadingInquiries(false);
     }
   };
 
@@ -361,37 +369,54 @@ const Admin = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.map(p => (
-                  <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '1.2rem 1rem' }}>
-                      {p.image_url ? (
-                        <div style={{ width: '50px', height: '50px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                          <img
-                            src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
-                            alt={p.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={(e) => { e.target.style.display = 'none'; }}
-                          />
-                        </div>
-                      ) : (
-                        <div style={{ width: '50px', height: '50px', borderRadius: '8px', background: 'var(--input-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Package size={20} color="var(--text-muted)" opacity={0.3} />
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
-                    <td style={{ padding: '1.2rem 1rem', color: 'var(--text-muted)' }}>{p.category_name}</td>
-                    <td style={{ padding: '1.2rem 1rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 500 }}>{p.shelf_life || '24 Months'}</span>
-                    </td>
-                    <td style={{ padding: '1.2rem 1rem' }}>
-                      <div style={{ display: 'flex', gap: '1rem' }}>
-                        <Edit onClick={() => openEditModal(p)} size={16} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} />
-                        <Trash2 onClick={() => openDeleteModal(p)} size={16} style={{ cursor: 'pointer', color: '#EF4444' }} />
+                {isLoadingProducts ? (
+                  <tr>
+                    <td colSpan="5" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                        <Loader2 className="animate-spin" size={32} color="var(--primary)" />
+                        <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Fetching Inventory...</span>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : products.length > 0 ? (
+                  products.map(p => (
+                    <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '1.2rem 1rem' }}>
+                        {p.image_url ? (
+                          <div style={{ width: '50px', height: '50px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                            <img
+                              src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
+                              alt={p.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          </div>
+                        ) : (
+                          <div style={{ width: '50px', height: '50px', borderRadius: '8px', background: 'var(--input-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Package size={20} color="var(--text-muted)" opacity={0.3} />
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
+                      <td style={{ padding: '1.2rem 1rem', color: 'var(--text-muted)' }}>{p.category_name}</td>
+                      <td style={{ padding: '1.2rem 1rem' }}>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 500 }}>{p.shelf_life || '24 Months'}</span>
+                      </td>
+                      <td style={{ padding: '1.2rem 1rem' }}>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                          <Edit onClick={() => openEditModal(p)} size={16} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} />
+                          <Trash2 onClick={() => openDeleteModal(p)} size={16} style={{ cursor: 'pointer', color: '#EF4444' }} />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" style={{ padding: '4rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      No formulations found in this category.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -421,7 +446,17 @@ const Admin = () => {
       ) : (
         <div className="glass" style={{ padding: '2rem' }}>
           <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Recent Client Inquiries</h3>
-          {inquiries.length > 0 ? (
+          {isLoadingInquiries ? (
+            <div style={{ textAlign: 'center', padding: '6rem', background: 'rgba(255,255,255,0.05)', borderRadius: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+                <div>
+                  <h4 style={{ color: 'var(--text-main)', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Loading Communications</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Retrieving latest client inquiries...</p>
+                </div>
+              </div>
+            </div>
+          ) : inquiries.length > 0 ? (
             <>
               <div className="table-scroll" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
@@ -692,7 +727,8 @@ const Admin = () => {
 
               <div style={{ marginBottom: '3rem' }}>
                 <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Product Imagery {editingProduct && '(Optional)'}</label>
-                <div
+                <label
+                  htmlFor="file-upload"
                   className="glass"
                   style={{
                     padding: '2rem',
@@ -705,7 +741,8 @@ const Admin = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    cursor: 'pointer'
                   }}
                 >
                   <input type="file" id="file-upload" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
@@ -719,29 +756,14 @@ const Admin = () => {
                       <img
                         src={previewUrl}
                         alt="Preview"
-                        style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }}
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: 'var(--shadow-md)', transition: '0.3s' }}
+                        onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                        onMouseLeave={(e) => e.target.style.opacity = '1'}
                       />
                       <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.5rem' }}>
-                        <label
-                          htmlFor="file-upload"
-                          style={{
-                            background: 'white',
-                            color: 'var(--primary)',
-                            padding: '0.4rem',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                          title="Change Image"
-                        >
-                          <Edit size={16} />
-                        </label>
                         <button
                           type="button"
-                          onClick={handleRemoveImage}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveImage(); }}
                           style={{
                             background: '#EF4444',
                             color: 'white',
@@ -752,7 +774,8 @@ const Admin = () => {
                             border: 'none',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            zIndex: 10
                           }}
                           title="Remove Image"
                         >
@@ -761,10 +784,10 @@ const Admin = () => {
                       </div>
                     </div>
                   ) : (
-                    <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                       <Plus size={32} color="var(--text-muted)" />
                       <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Upload Product Mockup</span>
-                    </label>
+                    </div>
                   )}
                   {/* {imageFile && !isCompressing && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
@@ -776,7 +799,7 @@ const Admin = () => {
                       </span>
                     </div>
                   )} */}
-                </div>
+                </label>
               </div>
 
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
