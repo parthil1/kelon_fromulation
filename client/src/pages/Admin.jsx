@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye } from 'lucide-react';
+import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye, X, ArrowLeft } from 'lucide-react';
 
 const Admin = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -30,6 +30,7 @@ const Admin = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [inquiryPage, setInquiryPage] = useState(1);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [tableCategory, setTableCategory] = useState('all');
@@ -110,7 +111,11 @@ const Admin = () => {
     e.preventDefault();
     const formData = new FormData();
     Object.keys(newProduct).forEach(key => formData.append(key, newProduct[key]));
-    if (imageFile) formData.append('image', imageFile);
+    if (imageFile) {
+      formData.append('image', imageFile);
+    } else if (!previewUrl) {
+      formData.append('image_url', '');
+    }
 
     try {
       if (editingProduct) {
@@ -138,6 +143,26 @@ const Admin = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setImageFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setImageFile(null);
+    setPreviewUrl(null);
+  };
+
   const openDeleteModal = (product) => {
     setProductToDelete(product);
     setIsDeleteModalOpen(true);
@@ -158,6 +183,11 @@ const Admin = () => {
       moq: product.moq || '',
       is_featured: product.is_featured
     });
+    if (product.image_url) {
+      setPreviewUrl(`${import.meta.env.VITE_BASE_URL}${product.image_url}`);
+    } else {
+      setPreviewUrl(null);
+    }
     setIsModalOpen(true);
   };
 
@@ -178,6 +208,10 @@ const Admin = () => {
       is_featured: false
     });
     setImageFile(null);
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
   };
 
   if (!isLoggedIn) {
@@ -286,6 +320,7 @@ const Admin = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--primary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '1rem' }}>Image</th>
                   <th style={{ padding: '1rem' }}>Name</th>
                   <th style={{ padding: '1rem' }}>Category</th>
                   <th style={{ padding: '1rem' }}>Shelf Life</th>
@@ -295,6 +330,22 @@ const Admin = () => {
               <tbody>
                 {products.map(p => (
                   <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      {p.image_url ? (
+                        <div style={{ width: '50px', height: '50px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                          <img 
+                            src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`} 
+                            alt={p.name} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                        </div>
+                      ) : (
+                        <div style={{ width: '50px', height: '50px', borderRadius: '8px', background: 'var(--input-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Package size={20} color="var(--text-muted)" opacity={0.3} />
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
                     <td style={{ padding: '1.2rem 1rem', color: 'var(--text-muted)' }}>{p.category_name}</td>
                     <td style={{ padding: '1.2rem 1rem' }}>
@@ -498,8 +549,26 @@ const Admin = () => {
 
       {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--bg)', zIndex: 10000, overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--bg)', zIndex: 10000, overflowY: 'auto', padding: '4rem 1rem' }}>
           <div className="container modal-fullscreen-inner" style={{ maxWidth: '1000px' }}>
+            <button 
+              onClick={closeModal} 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.6rem', 
+                background: 'none', 
+                border: 'none', 
+                color: 'var(--text-muted)', 
+                cursor: 'pointer', 
+                marginBottom: '2rem',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                padding: '0'
+              }}
+            >
+              <ArrowLeft size={20} /> BACK TO INVENTORY
+            </button>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem', borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
               <div>
                 <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '3px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>Management Console</h4>
@@ -583,12 +652,80 @@ const Admin = () => {
 
               <div style={{ marginBottom: '3rem' }}>
                 <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Product Imagery {editingProduct && '(Optional)'}</label>
-                <div className="glass" style={{ padding: '2rem', borderStyle: 'dashed', textAlign: 'center', borderColor: imageFile ? 'var(--primary)' : 'var(--border)' }}>
-                  <input type="file" id="file-upload" accept="image/*" onChange={e => setImageFile(e.target.files[0])} style={{ display: 'none' }} />
-                  <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                    <Plus size={32} color={imageFile ? 'var(--primary)' : 'var(--text-muted)'} />
-                    <span style={{ color: imageFile ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600 }}>{imageFile ? imageFile.name : 'Upload Product Mockup'}</span>
-                  </label>
+                <div 
+                  className="glass" 
+                  style={{ 
+                    padding: '2rem', 
+                    borderStyle: 'dashed', 
+                    textAlign: 'center', 
+                    borderColor: (imageFile || (editingProduct && previewUrl)) ? 'var(--primary)' : 'var(--border)',
+                    position: 'relative',
+                    minHeight: '200px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <input type="file" id="file-upload" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                  {previewUrl ? (
+                    <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }} 
+                      />
+                      <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.5rem' }}>
+                        <label 
+                          htmlFor="file-upload" 
+                          style={{ 
+                            background: 'white', 
+                            color: 'var(--primary)', 
+                            padding: '0.4rem', 
+                            borderRadius: '50%', 
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          title="Change Image"
+                        >
+                          <Edit size={16} />
+                        </label>
+                        <button 
+                          type="button"
+                          onClick={handleRemoveImage}
+                          style={{ 
+                            background: '#EF4444', 
+                            color: 'white', 
+                            padding: '0.4rem', 
+                            borderRadius: '50%', 
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          title="Remove Image"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                      <Plus size={32} color="var(--text-muted)" />
+                      <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Upload Product Mockup</span>
+                    </label>
+                  )}
+                  {imageFile && (
+                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '1rem', fontWeight: 600 }}>
+                      Selected: {imageFile.name}
+                    </span>
+                  )}
                 </div>
               </div>
 

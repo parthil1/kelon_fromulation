@@ -133,8 +133,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 
   if (req.file) {
     updateData.image_url = `/uploads/${req.file.filename}`;
-  } else if (req.body.image_url) {
-    updateData.image_url = req.body.image_url;
+  } else if ('image_url' in req.body) {
+    updateData.image_url = req.body.image_url || null;
   }
 
   try {
