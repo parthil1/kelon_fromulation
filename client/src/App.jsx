@@ -349,6 +349,29 @@ const ContactSection = () => {
   );
 };
 
+const ManufacturingProcess = () => (
+  <section id="process" className="process-section" style={{ background: "#f1f4eb", padding: "50px 0" }}>
+    <div className="container">
+      <ScrollReveal>
+        <div className="process-header" style={{ marginBottom: '50px', textAlign: 'center' }}>
+          <h4 className="text-label" style={{ marginBottom: '1.2rem', letterSpacing: '3px' }}>Workflow Excellence</h4>
+          <h1 className="responsive-section-title">
+            Science-Driven <br />
+            <span className="text-gradient">Production Lifecycle</span>
+          </h1>
+        </div>
+        <div className="process-image-wrapper">
+          <img
+            src="/process.png"
+            alt="Kelon Manufacturing Process Diagram"
+            className="process-diagram"
+          />
+        </div>
+      </ScrollReveal>
+    </div>
+  </section>
+);
+
 // Main Pages
 const Home = () => (
   <>
@@ -358,6 +381,7 @@ const Home = () => (
       <AboutSummary />
       <LegacyAbout />
     </div>
+    <ManufacturingProcess />
     <Capabilities />
     <div id="contact">
       <ContactSection />
