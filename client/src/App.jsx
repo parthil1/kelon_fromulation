@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, u
 import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
+import './App.css';
+import './responsive.css';
 
 // Animation Component
 const ScrollReveal = ({ children, className, style }) => {
@@ -372,6 +374,63 @@ const ManufacturingProcess = () => (
   </section>
 );
 
+const Footer = () => (
+  <footer className="footer-premium">
+    <div className="container">
+      <div className="footer-grid">
+        <div className="footer-links-group">
+          <h4 className="footer-title">Explorer</h4>
+          <ul className="footer-links-list">
+            <li><a href="#home" onClick={(e) => { e.preventDefault(); document.getElementById('home').scrollIntoView({ behavior: 'smooth' }) }}>Home</a></li>
+            <li><Link to="/products">Products</Link></li>
+            <li><a href="#about" onClick={(e) => { e.preventDefault(); document.getElementById('about').scrollIntoView({ behavior: 'smooth' }) }}>About Us</a></li>
+            <li><a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }}>Contact</a></li>
+          </ul>
+        </div>
+
+        <div className="footer-contact-group">
+          <h4 className="footer-title">Get in Touch</h4>
+          <div className="footer-contact-item">
+            <div className="footer-icon-box"><Mail size={18} /></div>
+            <div>
+              <span className="footer-contact-label">Email</span>
+              <a href="mailto:partners@kelon.com" className="footer-contact-value">partners@kelon.com</a>
+            </div>
+          </div>
+          <div className="footer-contact-item">
+            <div className="footer-icon-box"><Phone size={18} /></div>
+            <div>
+              <span className="footer-contact-label">Direct Line</span>
+              <a href="tel:+15559876543" className="footer-contact-value">+1 (555) 987-6543</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="footer-address-group">
+          <h4 className="footer-title">Headquarters</h4>
+          <div className="footer-address-item">
+            <div className="footer-icon-box"><Factory size={18} /></div>
+            <p className="footer-address-text">
+              Industrial Zone Block 5,<br />
+              Kelon Formulation HQ,<br />
+              Pharma District
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="footer-bottom-bar">
+        <p className="copyright-text">© 2026 Kelon Formulation. All Rights Reserved.</p>
+        <div className="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <span className="separator"></span>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
 // Main Pages
 const Home = () => (
   <>
@@ -386,6 +445,7 @@ const Home = () => (
     <div id="contact">
       <ContactSection />
     </div>
+    <Footer />
   </>
 );
 
@@ -603,17 +663,6 @@ const App = () => (
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </div>
-    {/* <footer className="footer-main">
-      <div className="container footer-content">
-        <p className="footer-brand-text">
-          KELON FORMULATION
-        </p>
-        <div className="footer-nav-links">
-          <a href="#" className="footer-link">Privacy Policy</a>
-          <a href="#" className="footer-link">Terms of Service</a>
-        </div>
-      </div>
-    </footer> */}
   </Router>
 );
 
