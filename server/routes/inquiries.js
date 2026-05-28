@@ -37,4 +37,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Delete inquiry (Admin only)
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleted = await db('inquiries').where({ id }).delete();
+    if (deleted) {
+      res.json({ message: 'Inquiry deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Inquiry not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

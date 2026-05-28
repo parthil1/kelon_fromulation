@@ -31,6 +31,7 @@ const Admin = () => {
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [inquiryPage, setInquiryPage] = useState(1);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [copiedField, setCopiedField] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [tableCategory, setTableCategory] = useState('all');
@@ -136,11 +137,21 @@ const Admin = () => {
 
   const handleDeleteProduct = async () => {
     if (productToDelete) {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/products/${productToDelete.id}`);
-      fetchProducts();
-      setIsDeleteModalOpen(false);
-      setProductToDelete(null);
+      try {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/products/${productToDelete.id}`);
+        fetchProducts();
+        setIsDeleteModalOpen(false);
+        setProductToDelete(null);
+      } catch (err) {
+        alert('Error deleting product');
+      }
     }
+  };
+
+  const handleCopy = (text, field) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
   };
 
   const handleImageChange = (e) => {
@@ -437,7 +448,7 @@ const Admin = () => {
                         <td style={{ padding: '1.2rem 1rem' }}>
                           <Eye
                             size={18}
-                            style={{ color: 'var(--primary)', opacity: 0.8 }}
+                            style={{ color: 'var(--primary)', cursor: 'pointer', opacity: 0.8 }}
                             title="View Details"
                           />
                         </td>
@@ -480,72 +491,79 @@ const Admin = () => {
 
       {/* Inquiry Details Modal */}
       {selectedInquiry && (
-        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(26, 46, 24, 0.45)', backdropFilter: 'blur(8px)', zIndex: 10000, overflowY: 'auto', padding: '4rem 1rem', display: 'flex', justifyContent: 'center' }}>
-          <div className="glass modal-panel" style={{ maxWidth: '700px', margin: '0 auto', border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Inquiry Details</h2>
-              <button onClick={() => setSelectedInquiry(null)} style={{ background: 'var(--input-bg)', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Plus size={24} style={{ transform: 'rotate(45deg)' }} />
+        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(26, 46, 24, 0.45)', backdropFilter: 'blur(12px)', zIndex: 10000, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+          <div className="inq-modal-panel">
+            <div className="inq-header">
+              <div className="inq-title-group">
+                <h4>Inquiry Insight</h4>
+                <h2>Communication Hub</h2>
+              </div>
+              <button onClick={() => setSelectedInquiry(null)} className="inq-close-btn" title="Close Details">
+                <X size={28} />
               </button>
             </div>
 
-            <div style={{ display: 'grid', gap: '2rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
-                <div>
-                  <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '1px', marginBottom: '0.5rem' }}>Client Name</h4>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{selectedInquiry.name}</p>
+            <div className="inq-content-grid">
+              <div className="inq-cards-row">
+                <div className="inq-info-card card-sender">
+                  <h4 className="inq-label">Sender Identity</h4>
+                  <p className="sender-name">{selectedInquiry.name}</p>
+                  
+                  <div className="contact-row" onClick={() => handleCopy(selectedInquiry.email, 'email')}>
+                    <div className="contact-icon"><Mail size={18} /></div>
+                    <div className="contact-info">
+                      <span className="contact-label">Primary Email</span>
+                      <span className="contact-value">{selectedInquiry.email}</span>
+                    </div>
+                    {copiedField === 'email' && <span style={{ fontSize: '0.65rem', color: 'var(--primary-cta)', marginLeft: 'auto', fontWeight: 900, background: 'rgba(0,200,83,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>COPIED</span>}
+                  </div>
+
+                  <div className="contact-row" onClick={() => handleCopy(selectedInquiry.phone, 'phone')}>
+                    <div className="contact-icon"><Phone size={18} /></div>
+                    <div className="contact-info">
+                      <span className="contact-label">Mobile Contact</span>
+                      <span className="contact-value">{selectedInquiry.phone}</span>
+                    </div>
+                    {copiedField === 'phone' && <span style={{ fontSize: '0.65rem', color: 'var(--primary-cta)', marginLeft: 'auto', fontWeight: 900, background: 'rgba(0,200,83,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>COPIED</span>}
+                  </div>
                 </div>
-                <div>
-                  <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '1px', marginBottom: '0.5rem' }}>Product of Interest</h4>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{selectedInquiry.product_name || 'General Inquiry'}</p>
+
+                <div className="inq-info-card card-interest">
+                  <h4 className="inq-label">Project Interest</h4>
+                  <div className="interest-content">
+                    <div className="interest-icon-box">
+                      <Package size={42} color="var(--primary)" />
+                    </div>
+                    <div className="interest-text">
+                      <h3>{selectedInquiry.product_name || 'General Inquiry'}</h3>
+                      <p>Catalogue Spec Formulation</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', padding: '1.5rem', background: 'var(--input-bg)', borderRadius: '12px' }}>
-                <div>
-                  <h4 style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '1px', marginBottom: '0.3rem' }}>Email</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', fontWeight: 600 }}>
-                    <Mail size={14} /> {selectedInquiry.email}
-                  </div>
+              <div className="message-section">
+                <div className="message-section-title">
+                  <h4>Detailed Conversation</h4>
                 </div>
-                <div>
-                  <h4 style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '1px', marginBottom: '0.3rem' }}>Phone</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', fontWeight: 600 }}>
-                    <Phone size={14} /> {selectedInquiry.phone}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '1px', marginBottom: '1rem' }}>Message Content</h4>
-                <div style={{
-                  padding: '1.5rem',
-                  background: 'var(--bg-alt)',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border)',
-                  lineHeight: '1.7',
-                  color: 'var(--text-main)',
-                  overflowWrap: 'break-word',
-                  wordBreak: 'break-word',
-                  fontSize: '1rem',
-                  maxHeight: '300px',
-                  overflowY: 'auto'
-                }}>
+                <div className="inq-message-box">
                   {selectedInquiry.message}
                 </div>
               </div>
 
-              <button
-                onClick={() => setSelectedInquiry(null)}
-                className="btn-primary"
-                style={{ width: '100%', padding: '1.2rem', fontSize: '1rem', letterSpacing: '1px' }}
-              >
-                CLOSE VIEW
-              </button>
+              <div className="inq-modal-footer">
+                <button
+                  onClick={() => setSelectedInquiry(null)}
+                  className="btn-premium-close"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
 
       {/* Add/Edit Product Modal */}
       {isModalOpen && (
