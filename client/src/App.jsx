@@ -130,24 +130,81 @@ const Navbar = () => {
   );
 };
 
-const Hero = () => (
-  <section id="home" className="hero">
-    <div className="hero-bottom-fade" aria-hidden="true" />
-    <div className="container">
-      <div className="hero-content animate-fade">
-        <h4 className="text-label" style={{ letterSpacing: '4px', marginBottom: '1.5rem' }}>Third-Party Manufacturing Experts</h4>
-        <h1>The Future of <span>Nutraceutical</span> Innovation</h1>
-        <p>Your premier partner for high-quality private label supplements, advanced formulations, and end-to-end manufacturing excellence. Scaling wellness brands since 2026.</p>
-        <div className="hero-actions">
-          <Link to="/products" className="btn-primary" style={{ padding: '1.2rem 2.5rem' }}>Explore Catalog</Link>
-          <a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }} className="btn-outline">
-            Get a Quote <ChevronRight size={22} />
-          </a>
+const HeroSlider = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    {
+      label: 'Third-Party Manufacturing Experts',
+      title: <>The Future of <span>Nutraceutical</span> Innovation</>,
+      desc: 'Your premier partner for high-quality private label supplements, advanced formulations, and end-to-end manufacturing excellence.',
+      img: '/hero-factory.png'
+    },
+    {
+      label: 'Scientific Excellence',
+      title: <>Precision <span>Formulations</span> at Scale</>,
+      desc: 'Bridging the gap between complex science and consumer wellness through advanced, certified manufacturing processes.',
+      img: '/hero-lab.png'
+    },
+    {
+      label: 'Quality Assured',
+      title: <>Premium <span>Packaging</span> Solutions</>,
+      desc: 'Ensuring product integrity and brand prestige through world-class packaging and rigorous quality control.',
+      img: '/hero-products.png'
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  return (
+    <section id="home" className="hero-slider">
+      {/* Background Imágenes Loop */}
+      <div className="slider-backgrounds">
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`slide-bg ${index === currentSlide ? 'active' : ''}`}
+            style={{ backgroundImage: `linear-gradient(135deg, rgba(27, 61, 26, 0.85) 0%, rgba(60, 93, 57, 0.4) 100%), url(${slide.img})` }}
+          />
+        ))}
+      </div>
+
+      {/* Fixed Content Section */}
+      <div className="container" style={{ position: 'relative', zIndex: 5 }}>
+        <div className="hero-content">
+          <h4 className="text-label" style={{ letterSpacing: '4px', marginBottom: '1.5rem', color: 'var(--accent-lime)' }}>
+            Third-Party Manufacturing Experts
+          </h4>
+          <h1>The Future of <span>Nutraceutical</span> Innovation</h1>
+          <p>
+            Your premier partner for high-quality private label supplements, advanced formulations, and end-to-end manufacturing excellence. Scaling wellness brands since 2026.
+          </p>
+          <div className="hero-actions">
+            <Link to="/products" className="btn-primary" style={{ padding: '1.2rem 2.5rem' }}>Explore Catalog</Link>
+            <a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }} className="btn-outline">
+              Get a Quote <ChevronRight size={22} />
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+
+      <div className="slider-dots">
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentSlide(i)}
+            className={`dot ${i === currentSlide ? 'active' : ''}`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
 
 const FeatureStats = () => (
   <section className="section-alt section-pad">
@@ -434,8 +491,7 @@ const Footer = () => (
 // Main Pages
 const Home = () => (
   <>
-    <Hero />
-    <FeatureStats />
+    <HeroSlider />
     <div id="about">
       <AboutSummary />
       <LegacyAbout />
