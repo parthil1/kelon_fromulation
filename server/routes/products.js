@@ -105,14 +105,14 @@ const generateSlug = (text) => {
 
 // Create product (Admin only) with image upload
 router.post('/', upload.single('image'), async (req, res) => {
-  const { category_id, name, description, benefits, ingredients, is_featured, flavours, packing_material, packing_size, shelf_life, moq } = req.body;
+  const { category_id, name, description, benefits, ingredients, is_featured, flavours, packing_material, packing_size, shelf_life, moq, formulas } = req.body;
   const slug = req.body.slug || generateSlug(name);
   const image_url = req.file ? `/uploads/${req.file.filename}` : req.body.image_url;
 
   try {
     const [id] = await db('products').insert({
       category_id, name, slug, description, benefits, ingredients, image_url, is_featured: is_featured === 'true',
-      flavours, packing_material, packing_size, shelf_life, moq
+      flavours, packing_material, packing_size, shelf_life, moq, formulas
     });
     res.status(201).json({ id, name, slug, image_url });
   } catch (err) {
@@ -123,12 +123,12 @@ router.post('/', upload.single('image'), async (req, res) => {
 // Update product (Admin only)
 router.put('/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
-  const { category_id, name, description, benefits, ingredients, is_featured, flavours, packing_material, packing_size, shelf_life, moq } = req.body;
+  const { category_id, name, description, benefits, ingredients, is_featured, flavours, packing_material, packing_size, shelf_life, moq, formulas } = req.body;
   const slug = req.body.slug || generateSlug(name);
 
   const updateData = {
     category_id, name, slug, description, benefits, ingredients, is_featured: is_featured === 'true',
-    flavours, packing_material, packing_size, shelf_life, moq
+    flavours, packing_material, packing_size, shelf_life, moq, formulas
   };
 
   if (req.file) {

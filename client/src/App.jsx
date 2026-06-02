@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
-import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus } from 'lucide-react';
+import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus, Pill, Sparkles, Boxes, Zap } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
 import './App.css';
@@ -544,15 +544,50 @@ const Products = () => {
 
   return (
     <div className="container page-offset" style={{ paddingBottom: '6rem' }}>
-      <ScrollReveal className="page-header">
-        <h4 className="text-label" style={{ letterSpacing: '3px', marginBottom: '1.5rem' }}>Manufacturing Catalog</h4>
-        <h1 className="responsive-section-title" style={{ fontWeight: 800 }}>Explore Solutions</h1>
-      </ScrollReveal>
+      <div className="category-header-section">
+        {activeCategory ? (
+          <>
+            <h4 className="text-label" style={{ fontSize: '0.8rem', letterSpacing: '2px', marginBottom: '1rem' }}>
+              COLLECTION ({categories.find(c => c.id === activeCategory)?.product_count || 0})
+            </h4>
+            <h2 className="category-header-title">
+              {categories.find(c => c.id === activeCategory)?.name} – Advanced Solutions
+            </h2>
+            <p className="category-header-desc">
+              {categories.find(c => c.id === activeCategory)?.description || 
+                `Our ${categories.find(c => c.id === activeCategory)?.name.toLowerCase()} are engineered for maximum efficacy and stability. Each batch undergoes rigorous quality control in our WHO-GMP certified facility, ensuring premium delivery of active nutritional components with market-leading bioavailability.`}
+            </p>
+          </>
+        ) : (
+          <>
+            <h4 className="text-label" style={{ fontSize: '0.8rem', letterSpacing: '2px', marginBottom: '1rem' }}>
+              FULL CATALOG ({categories.reduce((acc, cat) => acc + parseInt(cat.product_count || 0), 0)})
+            </h4>
+            <h2 className="category-header-title">Manufacturing Excellence – Complete Selection</h2>
+            <p className="category-header-desc">
+              Discover our world-class manufacturing capabilities across various delivery formats. From rapid-dissolve effervescent technology to high-precision capsule filling, we offer the most diverse and scientifically-backed catalog in the nutraceutical industry.
+            </p>
+          </>
+        )}
+      </div>
 
       <div className="category-bar">
-        <button onClick={() => setActiveCategory(null)} className="category-pill" data-active={activeCategory === null}>All</button>
+        <button 
+          onClick={() => setActiveCategory(null)} 
+          className="category-pill" 
+          data-active={activeCategory === null}
+        >
+          All
+        </button>
         {categories.map(cat => (
-          <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className="category-pill" data-active={activeCategory === cat.id}>{cat.name}</button>
+          <button 
+            key={cat.id} 
+            onClick={() => setActiveCategory(cat.id)} 
+            className="category-pill" 
+            data-active={activeCategory === cat.id}
+          >
+            {cat.name}
+          </button>
         ))}
       </div>
 
@@ -702,6 +737,26 @@ const ProductDetail = () => {
               <div><h5 className="spec-label">Certifications</h5><p className="spec-val">WHO-GMP, ISO 22000</p></div>
             </div>
           </div>
+
+          {product.formulas && (
+            <div className="formulas-section" style={{ marginTop: '3rem' }}>
+              <h3 className="text-label" style={{ fontSize: '1.1rem', marginBottom: '1.5rem', letterSpacing: '1px' }}>Available Formulations</h3>
+              <div className="formulas-list">
+                {product.formulas.split('\n').filter(f => f.trim()).map((formula, i) => (
+                  <ScrollReveal key={i} className="formula-card" style={{ transitionDelay: `${i * 0.1}s` }}>
+                    <div className="formula-content">
+                      {formula.split('+').map((ingredient, j) => (
+                        <span key={j} className="formula-ingredient">
+                          {ingredient.trim()}
+                          {j < formula.split('+').length - 1 && <span className="formula-plus">+</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

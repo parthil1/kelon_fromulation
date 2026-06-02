@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Get all categories
+// Get all categories with product count
 router.get('/', async (req, res) => {
   try {
-    const categories = await db('categories').select('*');
+    const categories = await db('categories')
+      .leftJoin('products', 'categories.id', 'products.category_id')
+      .select('categories.*')
+      .count('products.id as product_count')
+      .groupBy('categories.id');
     res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });

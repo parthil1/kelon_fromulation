@@ -23,7 +23,8 @@ const Admin = () => {
     packing_size: '',
     shelf_life: '',
     moq: '',
-    is_featured: false
+    is_featured: false,
+    formulas: ''
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -222,7 +223,8 @@ const Admin = () => {
       packing_size: product.packing_size || '',
       shelf_life: product.shelf_life || '',
       moq: product.moq || '',
-      is_featured: product.is_featured
+      is_featured: product.is_featured,
+      formulas: product.formulas || ''
     });
     if (product.image_url) {
       setPreviewUrl(`${import.meta.env.VITE_BASE_URL}${product.image_url}`);
@@ -246,7 +248,8 @@ const Admin = () => {
       packing_size: '',
       shelf_life: '',
       moq: '',
-      is_featured: false
+      is_featured: false,
+      formulas: ''
     });
     setImageFile(null);
     if (previewUrl && previewUrl.startsWith('blob:')) {
@@ -723,6 +726,18 @@ const Admin = () => {
                   <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>MOQ</label>
                   <input value={newProduct.moq} onChange={e => setNewProduct({ ...newProduct, moq: e.target.value })} placeholder="500 Units" style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
                 </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Product Formulas (One per line)</label>
+                <textarea 
+                  rows={5} 
+                  value={newProduct.formulas} 
+                  onChange={e => setNewProduct({ ...newProduct, formulas: e.target.value })} 
+                  placeholder="Glutathione 500 mg + Astaxanthin 4 mg + ...&#10;Grape Seed Extract 10 mg + Aloe Vera Extract 10 mg + ..." 
+                  style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem', resize: 'vertical' }} 
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>Enter each formula on a new line to display them as a list on the product page.</p>
               </div>
 
               <div style={{ marginBottom: '3rem' }}>
