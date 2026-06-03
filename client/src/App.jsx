@@ -409,11 +409,11 @@ const ContactSection = () => {
 };
 
 const ManufacturingProcess = () => (
-  <section id="process" className="process-section" style={{ background: "#f1f4eb", padding: "50px 0" }}>
+  <section id="process" className="process-section" style={{ background: "#f1f4eb", padding: "20px 0" }}>
     <div className="container">
       <ScrollReveal>
-        <div className="process-header" style={{ marginBottom: '50px', textAlign: 'center' }}>
-          <h4 className="text-label" style={{ marginBottom: '1.2rem', letterSpacing: '3px' }}>Workflow Excellence</h4>
+        <div className="process-header" style={{ marginBottom: '20px', textAlign: 'center' }}>
+          <h4 className="text-label" style={{ marginBottom: '0.5rem', letterSpacing: '3px' }}>Workflow Excellence</h4>
           <h1 className="responsive-section-title">
             Science-Driven <br />
             <span className="text-gradient">Production Lifecycle</span>

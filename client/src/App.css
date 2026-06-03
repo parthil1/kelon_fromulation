@@ -303,11 +303,11 @@
 section.process-section {
   background-color: #f1f4eb !important;
   /* Light sage green from reference */
-  padding: 80px 0;
+  padding: 40px 0;
 }
 
 .process-header {
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .process-title {
@@ -323,12 +323,15 @@ section.process-section {
   margin: 0 auto;
   background: white;
   /* Soft shadow */
+  overflow: hidden;
+  border-radius: 20px;
 }
 
 .process-diagram {
   width: 100%;
   height: auto;
   display: block;
+  margin-top: -60px; /* Cuts the blank upper area */
 }
 
 .banner-dark {
