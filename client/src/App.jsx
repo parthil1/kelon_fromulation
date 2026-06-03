@@ -807,8 +807,8 @@ const ProductDetail = () => {
           </div>
 
           {product.formulas && (
-            <div className="formulas-section" style={{ marginTop: '3rem' }}>
-              <h3 className="text-label" style={{ fontSize: '1.1rem', marginBottom: '1.5rem', letterSpacing: '1px' }}>Available Formulations</h3>
+            <div className="formulas-section" style={{ marginTop: '2rem' }}>
+              <h3 className="text-label" style={{ fontSize: '1.1rem', marginBottom: '0.8rem', letterSpacing: '1px' }}>Available Formulations</h3>
               <div className="formulas-list">
                 {product.formulas.split('\n').filter(f => f.trim()).map((formula, i) => (
                   <ScrollReveal key={i} className="formula-card" style={{ transitionDelay: `${i * 0.1}s` }}>

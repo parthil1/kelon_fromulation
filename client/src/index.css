@@ -1360,7 +1360,7 @@ label {
 .formula-card {
   background: white;
   border-radius: 12px;
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   border-left: 5px solid var(--primary-cta);
   box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
@@ -1377,8 +1377,8 @@ label {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.05rem;
+  gap: 0.2rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-main);
   line-height: 1.5;
@@ -1387,13 +1387,13 @@ label {
 .formula-ingredient {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .formula-plus {
   color: var(--primary-cta);
   font-weight: 800;
-  margin: 0 0.2rem;
+  margin: 0;
   opacity: 0.8;
 }
 
