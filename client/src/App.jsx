@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
-import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus, Pill, Sparkles, Boxes, Zap } from 'lucide-react';
+import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus, Pill, Sparkles, Boxes, Zap, Lightbulb, Settings, Send, Clock, Truck, Flag, Eye, Trophy } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
 import './App.css';
@@ -488,12 +488,80 @@ const Footer = () => (
   </footer>
 );
 
+const ServiceFeatures = () => {
+  const features = [
+    { icon: <Settings size={28} />, title: 'Contract Manufacturing', desc: 'Equipped With Modern, Comprehensive And Specialized Manufacturing Equipment Services, We Offer Third Party Manufacturing, Private Labeling, And Customized Packaging.' },
+    { icon: <Lightbulb size={28} />, title: 'Formulation & Development', desc: 'Our Team Is Equipped With The Expertise And Facilities To Turn Your Idea In Reality.' },
+    { icon: <Boxes size={28} />, title: 'Customised Packing', desc: 'We Offer A Broad Packaging Portfolio And Have The Expertise In Supporting You With Design, Labeling And Packaging Solution.' },
+    { icon: <Send size={28} />, title: 'Regulatory Support', desc: 'Product Registrations For Overseas Markets, Dossier Collation And Preparation, Product Specification, Claim Substantiation, Label Compliance.' },
+    { icon: <Clock size={28} />, title: 'NABL Quality Assurance', desc: 'The Assessment Of Precision And Trueness Of Measurement Methods, Quality Control, Assigning Values To Materials, Calibration And The Establishment Of Conventional Scales.' },
+    { icon: <Truck size={28} />, title: 'Supply Chain Management', desc: 'A Proven Track Record In Delivering Goods On Time Ensures Our Brands Is Synonymous With Reliability.' },
+  ];
+
+  return (
+    <section className="section-pad" style={{ background: '#ffffff', padding: '6rem 0' }}>
+      <div className="container">
+        <ScrollReveal style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+          <h1 className="responsive-section-title" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 900, fontSize: '2.2rem' }}>
+            Leading Nutraceutical & <br /> dietary supplement manufacturer
+          </h1>
+        </ScrollReveal>
+        <div className="features-grid">
+          {features.map((f, i) => (
+            <ScrollReveal key={i} className="feature-item" style={{ transitionDelay: `${i * 0.1}s` }}>
+              <div className="feature-icon-circle">
+                {f.icon}
+              </div>
+              <div className="feature-text">
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const MissionVision = () => {
+  const cards = [
+    { icon: <Flag size={36} />, title: 'MISSION', desc: 'Our Mission is to have a strong and Health world and to achieve the mission we provide our consumers with the best quality drug range at the most affordable rates. So they are easily consuming them and have a healthier version of themselves.' },
+    { icon: <Eye size={36} />, title: 'VISION', desc: 'Our vision is to become the First choice of every consumer when it comes to quality treatment. Our vision is to be a top player in the pharmaceutical company by providing high-quality, affordable, and innovative solutions in the market.' },
+    { icon: <Trophy size={36} />, title: 'OUR VALUES', desc: 'No company can run their business alone, they all need a strong backup and here in our company, our team of professional\'s experts and workers are the back of our company. They offer us our unbeatable services.' },
+  ];
+
+  return (
+    <section className="mission-vision-section" style={{ backgroundImage: `linear-gradient(rgba(244, 250, 246, 0.92), rgba(244, 250, 246, 0.88)), url('/hero-lab.png')`, padding: '7rem 0' }}>
+      <div className="container">
+        <ScrollReveal style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <h4 className="text-label" style={{ color: '#ff4d4d', fontWeight: 800, letterSpacing: '2px', marginBottom: '1rem', fontSize: '0.9rem' }}>Who We Are</h4>
+          <h2 className="responsive-section-title" style={{ maxWidth: '750px', margin: '0 auto', lineHeight: '1.2', fontSize: '2rem' }}>A Helping Hand to Manufacture Your Pharmaceutical Products</h2>
+        </ScrollReveal>
+        <div className="mission-grid">
+          {cards.map((card, i) => (
+            <ScrollReveal key={i} className="mission-card" style={{ transitionDelay: `${i * 0.15}s` }}>
+              <div className="mission-icon-box">
+                {card.icon}
+              </div>
+              <h3>{card.title}</h3>
+              <p>{card.desc}</p>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // Main Pages
 const Home = () => (
   <>
     <HeroSlider />
+    <ServiceFeatures />
     <div id="about">
       <AboutSummary />
+      <MissionVision />
       <LegacyAbout />
     </div>
     <ManufacturingProcess />
