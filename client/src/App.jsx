@@ -556,14 +556,14 @@ const MissionVision = () => {
 
 const Certificates = () => {
   const certifications = [
+    { name: 'HACCP', img: '/cert-haccp.png' },
     { name: 'FSSAI', img: '/cert-fssai.png' },
     { name: 'ISO 22000', img: '/cert-iso-22000.png' },
     { name: 'GMP', img: '/cert-gmp.png' },
-    { name: 'HALAL', img: '/cert-halal.jpg' },
-    { name: 'FIEO', img: '/cert-fieo.png' },
-    { name: 'HACCP', img: '/cert-haccp.png' },
-    { name: 'KOSHER', img: '/cert-kosher.png' },
-    { name: 'ISO 17025', img: '/cert-iso-17025.png' },
+    // { name: 'HALAL', img: '/cert-halal.jpg' },
+    // { name: 'FIEO', img: '/cert-fieo.png' },
+    // { name: 'KOSHER', img: '/cert-kosher.png' },
+    // { name: 'ISO 17025', img: '/cert-iso-17025.png' },
   ];
 
   // Double the array for seamless scrolling
@@ -661,7 +661,7 @@ const Products = () => {
               {categories.find(c => c.id === activeCategory)?.name} – Advanced Solutions
             </h2>
             <p className="category-header-desc">
-              {categories.find(c => c.id === activeCategory)?.description || 
+              {categories.find(c => c.id === activeCategory)?.description ||
                 `Our ${categories.find(c => c.id === activeCategory)?.name.toLowerCase()} are engineered for maximum efficacy and stability. Each batch undergoes rigorous quality control in our WHO-GMP certified facility, ensuring premium delivery of active nutritional components with market-leading bioavailability.`}
             </p>
           </>
@@ -679,18 +679,18 @@ const Products = () => {
       </div>
 
       <div className="category-bar">
-        <button 
-          onClick={() => setActiveCategory(null)} 
-          className="category-pill" 
+        <button
+          onClick={() => setActiveCategory(null)}
+          className="category-pill"
           data-active={activeCategory === null}
         >
           All
         </button>
         {categories.map(cat => (
-          <button 
-            key={cat.id} 
-            onClick={() => setActiveCategory(cat.id)} 
-            className="category-pill" 
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className="category-pill"
             data-active={activeCategory === cat.id}
           >
             {cat.name}
