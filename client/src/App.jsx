@@ -554,6 +554,44 @@ const MissionVision = () => {
   );
 };
 
+const Certificates = () => {
+  const certifications = [
+    { name: 'FSSAI', img: '/cert-fssai.png' },
+    { name: 'ISO 22000', img: '/cert-iso-22000.png' },
+    { name: 'GMP', img: '/cert-gmp.png' },
+    { name: 'HALAL', img: '/cert-halal.jpg' },
+    { name: 'FIEO', img: '/cert-fieo.png' },
+    { name: 'HACCP', img: '/cert-haccp.png' },
+    { name: 'KOSHER', img: '/cert-kosher.png' },
+    { name: 'ISO 17025', img: '/cert-iso-17025.png' },
+  ];
+
+  // Double the array for seamless scrolling
+  const scrollItems = [...certifications, ...certifications];
+
+  return (
+    <section className="certificates-section">
+      <div className="container">
+        <ScrollReveal className="certificates-header">
+          <h4 className="text-label" style={{ marginBottom: '1rem', textAlign: 'center', fontSize: '0.85rem' }}>Global Standards</h4>
+          <h2>CERTIFICATIONS</h2>
+        </ScrollReveal>
+      </div>
+      <div className="certificates-container">
+        <div className="certificates-track">
+          {scrollItems.map((cert, i) => (
+            <div key={i} className="certificate-item">
+              <div className="cert-badge">
+                <img src={cert.img} alt={cert.name} className="cert-logo-img" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // Main Pages
 const Home = () => (
   <>
@@ -564,6 +602,7 @@ const Home = () => (
       <MissionVision />
       <LegacyAbout />
     </div>
+    <Certificates />
     <ManufacturingProcess />
     <Capabilities />
     <div id="contact">
