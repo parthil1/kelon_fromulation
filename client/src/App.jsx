@@ -234,10 +234,18 @@ const AboutSummary = () => (
           <p className="lead-text" style={{ color: 'var(--text-muted)', marginBottom: '3rem' }}>
             Kelon Formulation specializes in developing world-class nutritional solutions. We bridge the gap between complex science and consumer wellness through our advanced, certified manufacturing processes. Safe, effective, and sustainably developed—every time.
           </p>
-          <div className="cert-grid">
-            {['WHO GMP CERTIFIED', 'HACCP COMPLIANT', 'ISO 22000:2018', 'FDA REGISTERED', 'FSSC 22000', 'cGMP 21 CFR'].map((cert, i) => (
-              <div key={cert} className="cert-pill animate-fade" style={{ transitionDelay: `${i * 0.05}s` }}>
-                <ShieldCheck size={18} color="var(--primary-cta)" /> <span>{cert}</span>
+          <div className="about-features-grid">
+            {[
+              { icon: <FlaskConical size={32} />, title: 'Advanced R&D', desc: 'Cutting-edge laboratory for custom formulations and stability testing.' },
+              { icon: <ShieldCheck size={32} />, title: 'Quality Assurance', desc: 'Rigorous multi-stage testing ensuring 100% compliance with global standards.' },
+              { icon: <Zap size={32} />, title: 'Rapid Production', desc: 'High-speed automated lines for effervescent, capsules, and powders.' }
+            ].map((feature, i) => (
+              <div key={i} className="about-feature-card animate-fade" style={{ transitionDelay: `${i * 0.1}s` }}>
+                <div className="about-feature-icon">{feature.icon}</div>
+                <div className="about-feature-info">
+                  <h3>{feature.title}</h3>
+                  <p>{feature.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -608,7 +616,6 @@ const Home = () => (
     <div id="contact">
       <ContactSection />
     </div>
-    <Footer />
   </>
 );
 
@@ -870,16 +877,26 @@ const ProductDetail = () => {
   );
 };
 
+const FooterWrapper = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+  if (isAdmin) return null;
+  return <Footer />;
+};
+
 const App = () => (
   <Router>
-    <Navbar />
-    <div style={{ flex: 1 }}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/product/:slug" element={<ProductDetail />} />
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Navbar />
+      <div style={{ flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/product/:slug" element={<ProductDetail />} />
+          <Route path="/admin/*" element={<Admin />} />
+        </Routes>
+      </div>
+      <FooterWrapper />
     </div>
   </Router>
 );

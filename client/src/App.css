@@ -68,15 +68,22 @@
 .hero-slider .hero-content {
   max-width: 800px;
   color: white;
-  text-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 5;
   animation: fadeInFixed 1.5s ease-out forwards;
 }
 
 @keyframes fadeInFixed {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-slider .hero-content h1 {
@@ -98,7 +105,7 @@
 .hero-slider .hero-content p {
   font-size: 1.25rem;
   margin-bottom: 3.5rem;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   max-width: 650px;
   line-height: 1.7;
 }
@@ -122,7 +129,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.5);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   background: transparent;
   cursor: pointer;
   transition: 0.3s;
@@ -322,16 +329,17 @@ section.process-section {
   max-width: 1200px;
   margin: 0 auto;
   background: white;
-  /* Soft shadow */
   overflow: hidden;
+  /* No more scrolling */
   border-radius: 20px;
+  /* box-shadow: 0 10px 30px rgba(0,0,0,0.05); */
 }
 
 .process-diagram {
   width: 100%;
   height: auto;
   display: block;
-  margin-top: -60px; /* Cuts the blank upper area */
+  /* Use object-fit or padding adjustments if needed, but width 100% fits it horizontally */
 }
 
 .banner-dark {
@@ -685,7 +693,7 @@ section.process-section {
   align-items: center;
   justify-content: center;
   transition: 0.3s;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .inq-close-btn:hover {
@@ -703,7 +711,8 @@ section.process-section {
 
 .inq-cards-row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr; /* Make Project Interest narrower */
+  grid-template-columns: 1.6fr 1fr;
+  /* Make Project Interest narrower */
   gap: 1.2rem;
   align-items: stretch;
 }
@@ -713,14 +722,15 @@ section.process-section {
   border-radius: 18px;
   display: flex;
   flex-direction: column;
-  min-height: 140px; /* Reduced box size */
+  min-height: 140px;
+  /* Reduced box size */
   transition: 0.3s;
 }
 
 .card-sender {
   background: white;
   border: 1px solid var(--border);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.03);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03);
 }
 
 .card-interest {
@@ -774,7 +784,7 @@ section.process-section {
   border-color: var(--primary-cta);
   background: white;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
 }
 
 .contact-icon {
@@ -785,7 +795,7 @@ section.process-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
   color: var(--primary);
 }
 
@@ -793,7 +803,8 @@ section.process-section {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-width: 0; /* Critical for flex child overflow */
+  min-width: 0;
+  /* Critical for flex child overflow */
 }
 
 .contact-label {
@@ -808,7 +819,8 @@ section.process-section {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--primary-dark);
-  word-break: break-all; /* Allow wrapping for long emails */
+  word-break: break-all;
+  /* Allow wrapping for long emails */
   overflow-wrap: anywhere;
   line-height: 1.1;
 }
@@ -888,9 +900,10 @@ section.process-section {
   line-height: 1.5;
   color: var(--text-main);
   font-size: 0.92rem;
-  max-height: 180px; /* Force scrollbar more easily for testing */
+  max-height: 180px;
+  /* Force scrollbar more easily for testing */
   overflow-y: auto;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.02);
   word-break: break-all;
   overflow-wrap: anywhere;
   font-family: inherit;
@@ -927,8 +940,10 @@ section.process-section {
   text-transform: uppercase;
   font-weight: 800;
   border-radius: 14px;
-  background: linear-gradient(135deg, #3c5d39 0%, #1b3d1a 100%); /* High contrast solid green gradient */
-  color: #ffffff !important; /* Force white text visibility */
+  background: linear-gradient(135deg, #3c5d39 0%, #1b3d1a 100%);
+  /* High contrast solid green gradient */
+  color: #ffffff !important;
+  /* Force white text visibility */
   border: none;
   cursor: pointer;
   box-shadow: 0 10px 25px rgba(27, 61, 26, 0.25);
@@ -1006,7 +1021,7 @@ section.process-section {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .feature-item {
     text-align: center;
     flex-direction: column;
@@ -1032,9 +1047,10 @@ section.process-section {
 .mission-card {
   background: white;
   padding: 3rem 2rem;
-  border-radius: 4px; /* Boxy look like the image */
+  border-radius: 4px;
+  /* Boxy look like the image */
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   display: flex;
@@ -1095,18 +1111,20 @@ section.process-section {
   .mission-vision-section {
     padding: 5rem 0;
   }
-  
+
   .mission-card {
     padding: 3rem 2rem;
   }
 }
+
 /* ============================================================
    CERTIFICATES SECTION (Aeron Lifescience Style)
    ============================================================ */
 .certificates-section {
   padding: 6rem 0;
   background: #ffffff;
-  border-bottom: 6px solid #ff7043; /* Aesthetic orange divider */
+  border-bottom: 6px solid #ff7043;
+  /* Aesthetic orange divider */
   overflow: hidden;
   position: relative;
 }
@@ -1211,16 +1229,22 @@ section.process-section {
 }
 
 @keyframes scrollCertificates {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-50% - 3rem)); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-50% - 3rem));
+  }
 }
 
 @media (max-width: 1024px) {
+
   .certificates-container::before,
   .certificates-container::after {
     width: 150px;
   }
-  
+
   .certificates-track {
     gap: 4rem;
   }
@@ -1230,18 +1254,88 @@ section.process-section {
   .certificates-section {
     padding: 4rem 0;
   }
-  
+
   .cert-badge {
     width: 100px;
     height: 100px;
   }
-  
+
   .certificates-container::before,
   .certificates-container::after {
     width: 80px;
   }
-  
+
   .certificates-track {
     gap: 3rem;
+  }
+}
+
+/* About Features Grid */
+.about-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+}
+
+.about-feature-card {
+  display: flex;
+  gap: 1.5rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+}
+
+.about-feature-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary-cta);
+  box-shadow: 0 20px 40px rgba(60, 93, 57, 0.08);
+}
+
+.about-feature-icon {
+  background: var(--accent-mint-bg);
+  color: var(--primary-cta);
+  width: 64px;
+  height: 64px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.about-feature-info h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+  color: var(--text-main);
+}
+
+.about-feature-info p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .about-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .about-features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .about-feature-card {
+    padding: 1.5rem;
   }
 }
