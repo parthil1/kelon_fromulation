@@ -364,9 +364,9 @@ const ContactSection = () => {
         <div className="grid-contact">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {[
-              { icon: <Mail size={24} />, title: 'Email Us', val: 'partners@kelon.com', sub: 'Technical Queries' },
-              { icon: <Phone size={24} />, title: 'Direct Line', val: '+1 (555) 987-6543', sub: '9 AM - 6 PM EST' },
-              { icon: <Factory size={24} />, title: 'Facility', val: 'Industrial Zone Block 5, Kelon Formulation HQ', sub: 'Main Operations' }
+             { icon: <Mail size={24} />, title: 'Email Us', val: 'info@kelonformulation.com', sub: 'Technical Queries' },
+              { icon: <Phone size={24} />, title: 'Direct Line', val: '+91 9104882188', sub: '8 AM - 6 PM EST' },
+              { icon: <Factory size={24} />, title: 'Facility', val: 'Shed no. 14, Nandanvan 04 Ind. Park, Bakrol Bujrang, Ahmedabad - 382430', sub: 'Main Operations' }
             ].map((item, i) => (
               <ScrollReveal key={i} className="glass" style={{ padding: '2.5rem 2rem', transitionDelay: `${i * 0.15}s` }}>
                 <div className="contact-card-row">
@@ -459,14 +459,14 @@ const Footer = () => (
             <div className="footer-icon-box"><Mail size={18} /></div>
             <div>
               <span className="footer-contact-label">Email</span>
-              <a href="mailto:partners@kelon.com" className="footer-contact-value">partners@kelon.com</a>
+              <a href="mailto:info@kelonformulation.com" className="footer-contact-value">info@kelonformulation.com</a>
             </div>
           </div>
           <div className="footer-contact-item">
             <div className="footer-icon-box"><Phone size={18} /></div>
             <div>
               <span className="footer-contact-label">Direct Line</span>
-              <a href="tel:+15559876543" className="footer-contact-value">+1 (555) 987-6543</a>
+              <a href="tel:+919104882188" className="footer-contact-value">+91 9104882188</a>
             </div>
           </div>
         </div>
@@ -476,9 +476,8 @@ const Footer = () => (
           <div className="footer-address-item">
             <div className="footer-icon-box"><Factory size={18} /></div>
             <p className="footer-address-text">
-              Industrial Zone Block 5,<br />
-              Kelon Formulation HQ,<br />
-              Pharma District
+              Shed no. 14, Nandanvan 04 Ind. Park, <BR />
+              Bakrol Bujrang, Ahmedabad - 382430
             </p>
           </div>
         </div>
