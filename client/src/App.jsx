@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, u
 import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus, Pill, Sparkles, Boxes, Zap, Lightbulb, Settings, Send, Clock, Truck, Flag, Eye, Trophy } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
+import { useSEO } from './hooks/useSEO';
 import './App.css';
 import './responsive.css';
 
@@ -600,23 +601,30 @@ const Certificates = () => {
 };
 
 // Main Pages
-const Home = () => (
-  <>
-    <HeroSlider />
-    <ServiceFeatures />
-    <div id="about">
-      <AboutSummary />
-      <MissionVision />
-      <LegacyAbout />
-    </div>
-    <Certificates />
-    <ManufacturingProcess />
-    <Capabilities />
-    <div id="contact">
-      <ContactSection />
-    </div>
-  </>
-);
+const Home = () => {
+  useSEO({
+    title: 'Kelon Formulation - Third-Party Nutraceutical & Supplement Manufacturing',
+    description: 'Premier B2B contract manufacturer for private label supplements, effervescent tablets, capsules, and protein powders. ISO-certified facilities.'
+  });
+
+  return (
+    <>
+      <HeroSlider />
+      <ServiceFeatures />
+      <div id="about">
+        <AboutSummary />
+        <MissionVision />
+        <LegacyAbout />
+      </div>
+      <Certificates />
+      <ManufacturingProcess />
+      <Capabilities />
+      <div id="contact">
+        <ContactSection />
+      </div>
+    </>
+  );
+};
 
 const Products = () => {
   const location = useLocation();
@@ -624,6 +632,16 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const activeCategoryObj = categories.find(c => c.id === activeCategory);
+  const pageTitle = activeCategoryObj 
+    ? `${activeCategoryObj.name} Manufacturing - Kelon Formulation` 
+    : 'Nutraceutical Product Catalog - Kelon Formulation';
+  const pageDesc = activeCategoryObj 
+    ? activeCategoryObj.description || `High-quality ${activeCategoryObj.name.toLowerCase()} contract manufacturing and custom formulation.`
+    : 'Browse our complete catalog of certified effervescent tablets, capsules, protein powders, and customized supplement formulations.';
+
+  useSEO({ title: pageTitle, description: pageDesc });
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/categories`).then(res => {
@@ -756,6 +774,11 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [status, setStatus] = useState('');
+
+  useSEO({
+    title: product ? `${product.name} - Contract Manufacturing Specs | Kelon` : 'Retrieving Specifications - Kelon Formulation',
+    description: product ? product.description : 'Technical specifications and custom formulation options for Kelon nutraceutical products.'
+  });
 
   useEffect(() => {
     setLoading(true);
