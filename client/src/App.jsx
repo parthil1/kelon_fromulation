@@ -365,7 +365,7 @@ const ContactSection = () => {
         <div className="grid-contact">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {[
-             { icon: <Mail size={24} />, title: 'Email Us', val: 'info@kelonformulation.com', sub: 'Technical Queries' },
+              { icon: <Mail size={24} />, title: 'Email Us', val: 'info@kelonformulation.com', sub: 'Technical Queries' },
               { icon: <Phone size={24} />, title: 'Direct Line', val: '+91 9104882188', sub: '8 AM - 6 PM EST' },
               { icon: <Factory size={24} />, title: 'Facility', val: 'Shed no. 14, Nandanvan 04 Ind. Park, Bakrol Bujrang, Ahmedabad - 382430', sub: 'Main Operations' }
             ].map((item, i) => (
@@ -477,7 +477,7 @@ const Footer = () => (
           <div className="footer-address-item">
             <div className="footer-icon-box"><Factory size={18} /></div>
             <p className="footer-address-text">
-              Shed no. 14, Nandanvan 04 Ind. Park, <BR />
+              Shed no. 14, Nandanvan 04 Ind. Park, <br />
               Bakrol Bujrang, Ahmedabad - 382430
             </p>
           </div>
@@ -634,10 +634,10 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
 
   const activeCategoryObj = categories.find(c => c.id === activeCategory);
-  const pageTitle = activeCategoryObj 
-    ? `${activeCategoryObj.name} Manufacturing - Kelon Formulation` 
+  const pageTitle = activeCategoryObj
+    ? `${activeCategoryObj.name} Manufacturing - Kelon Formulation`
     : 'Nutraceutical Product Catalog - Kelon Formulation';
-  const pageDesc = activeCategoryObj 
+  const pageDesc = activeCategoryObj
     ? activeCategoryObj.description || `High-quality ${activeCategoryObj.name.toLowerCase()} contract manufacturing and custom formulation.`
     : 'Browse our complete catalog of certified effervescent tablets, capsules, protein powders, and customized supplement formulations.';
 
