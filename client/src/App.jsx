@@ -231,7 +231,7 @@ const AboutSummary = () => (
       <ScrollReveal className="glass-highlight">
         <div style={{ textAlign: 'left' }}>
           <h2 className="text-label" style={{ fontSize: '0.95rem', marginBottom: '1.2rem', letterSpacing: '2.5px' }}>Your Manufacturing Partner</h2>
-          <h1 className="responsive-section-title" style={{ marginBottom: '1.5rem', lineHeight: '1.1' }}>Science-First Formulations <br />at Scale</h1>
+          <h2 className="responsive-section-title" style={{ marginBottom: '1.5rem', lineHeight: '1.1' }}>Science-First Formulations <br />at Scale</h2>
           <p className="lead-text" style={{ color: 'var(--text-muted)', marginBottom: '3rem' }}>
             Kelon Formulation specializes in developing world-class nutritional solutions. We bridge the gap between complex science and consumer wellness through our advanced, certified manufacturing processes. Safe, effective, and sustainably developed—every time.
           </p>
@@ -261,7 +261,7 @@ const LegacyAbout = () => (
     <div className="container">
       <ScrollReveal className="legacy-intro" style={{ textAlign: 'center' }}>
         <h4 className="text-label" style={{ letterSpacing: '3.5px', marginBottom: '1.2rem' }}>Our Legacy</h4>
-        <h1 className="responsive-section-title" style={{ marginBottom: '2rem', fontWeight: 800, lineHeight: '1.1' }}>State-of-the-Art <br /><span className="text-gradient">Industrial Prowess</span></h1>
+        <h2 className="responsive-section-title" style={{ marginBottom: '2rem', fontWeight: 800, lineHeight: '1.1' }}>State-of-the-Art <br /><span className="text-gradient">Industrial Prowess</span></h2>
         <p className="lead-text" style={{ color: 'var(--text-muted)', margin: '0 auto' }}>
           Kelon Formulation Manufacturing is a leader in high-performance supplement production. Our mission is to accelerate wellness worldwide through uncompromising innovation in formulation and design.
         </p>
@@ -356,7 +356,7 @@ const ContactSection = () => {
       <div className="container">
         <ScrollReveal className="page-header">
           <h4 className="text-label" style={{ letterSpacing: '3px', marginBottom: '1.2rem' }}>Partnership Inquiry</h4>
-          <h1 className="responsive-section-title" style={{ marginBottom: '1.5rem' }}>Start Your Project</h1>
+          <h2 className="responsive-section-title" style={{ marginBottom: '1.5rem' }}>Start Your Project</h2>
           <p className="lead-text" style={{ color: 'var(--text-muted)', margin: '0 auto' }}>
             Ready to manufacture with the best? Fill out the form below or contact our headquarters for a detailed quote.
           </p>
@@ -423,10 +423,10 @@ const ManufacturingProcess = () => (
       <ScrollReveal>
         <div className="process-header" style={{ marginBottom: '20px', textAlign: 'center' }}>
           <h4 className="text-label" style={{ marginBottom: '0.5rem', letterSpacing: '3px' }}>Workflow Excellence</h4>
-          <h1 className="responsive-section-title">
+          <h2 className="responsive-section-title">
             Science-Driven <br />
             <span className="text-gradient">Production Lifecycle</span>
-          </h1>
+          </h2>
         </div>
         <div className="process-image-wrapper">
           <img
@@ -510,9 +510,9 @@ const ServiceFeatures = () => {
     <section className="section-pad" style={{ background: '#ffffff', padding: '6rem 0' }}>
       <div className="container">
         <ScrollReveal style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <h1 className="responsive-section-title" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 900, fontSize: '2.2rem' }}>
+          <h2 className="responsive-section-title" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 900, fontSize: '2.2rem' }}>
             Leading Nutraceutical & <br /> dietary supplement manufacturer
-          </h1>
+          </h2>
         </ScrollReveal>
         <div className="features-grid">
           {features.map((f, i) => (
@@ -567,7 +567,7 @@ const Certificates = () => {
     { name: 'HACCP', img: '/cert-haccp.png' },
     { name: 'FSSAI', img: '/cert-fssai.png' },
     { name: 'ISO 22000', img: '/cert-iso-22000.png' },
-    { name: 'GMP', img: '/cert-gmp.png' },
+    { name: 'WHO-GMP', img: '/cert-who-gmp.png' },
     // { name: 'HALAL', img: '/cert-halal.jpg' },
     // { name: 'FIEO', img: '/cert-fieo.png' },
     // { name: 'KOSHER', img: '/cert-kosher.png' },
@@ -681,9 +681,9 @@ const Products = () => {
             <h4 className="text-label" style={{ fontSize: '0.8rem', letterSpacing: '2px', marginBottom: '1rem' }}>
               COLLECTION ({categories.find(c => c.id === activeCategory)?.product_count || 0})
             </h4>
-            <h2 className="category-header-title">
+            <h1 className="category-header-title">
               {categories.find(c => c.id === activeCategory)?.name} – Advanced Solutions
-            </h2>
+            </h1>
             <p className="category-header-desc">
               {categories.find(c => c.id === activeCategory)?.description ||
                 `Our ${categories.find(c => c.id === activeCategory)?.name.toLowerCase()} are engineered for maximum efficacy and stability. Each batch undergoes rigorous quality control in our WHO-GMP certified facility, ensuring premium delivery of active nutritional components with market-leading bioavailability.`}
@@ -694,7 +694,7 @@ const Products = () => {
             <h4 className="text-label" style={{ fontSize: '0.8rem', letterSpacing: '2px', marginBottom: '1rem' }}>
               FULL CATALOG ({categories.reduce((acc, cat) => acc + parseInt(cat.product_count || 0), 0)})
             </h4>
-            <h2 className="category-header-title">Manufacturing Excellence – Complete Selection</h2>
+            <h1 className="category-header-title">Manufacturing Excellence – Complete Selection</h1>
             <p className="category-header-desc">
               Discover our world-class manufacturing capabilities across various delivery formats. From rapid-dissolve effervescent technology to high-precision capsule filling, we offer the most diverse and scientifically-backed catalog in the nutraceutical industry.
             </p>
@@ -870,7 +870,7 @@ const ProductDetail = () => {
             <div className="specs-col">
               <div><h5 className="spec-label">MOQ</h5><p className="spec-val">{product.moq || 'Contact Sales'}</p></div>
               <div><h5 className="spec-label">Packaging</h5><p className="spec-val">{product.packing_material || 'Advanced Pharma'}</p></div>
-              <div><h5 className="spec-label">Certifications</h5><p className="spec-val">WHO-GMP, ISO 22000</p></div>
+              <div><h5 className="spec-label">Certifications</h5><p className="spec-val">WHO-GMP, HACCP, FSSAI</p></div>
             </div>
           </div>
 
