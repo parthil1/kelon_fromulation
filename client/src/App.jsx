@@ -306,16 +306,16 @@ const Capabilities = () => (
       </ScrollReveal>
       <div className="product-grid">
         {[
-          { name: 'Effervescent Tablets', desc: 'Industry-leading rapid-dissolve tech.', img: '/uploads/cat-effervescent.png' },
-          { name: 'Capsules', desc: 'Secure and stable active delivery.', img: '/uploads/cat-capsules.png' },
-          { name: 'Protein Powders', desc: 'High-purity, easy-mix formulations.', img: '/uploads/cat-powders.png' },
-          { name: 'Standard Tablets', desc: 'Precise dosing and coating options.', img: '/uploads/cat-tablets.png' }
+          { name: 'Effervescent Tablets', desc: 'Industry-leading rapid-dissolve tech.', img: '/cat-effervescent.png' },
+          { name: 'Capsules', desc: 'Secure and stable active delivery.', img: '/cat-capsules.png' },
+          { name: 'Protein Powders', desc: 'High-purity, easy-mix formulations.', img: '/cat-powders.png' },
+          { name: 'Standard Tablets', desc: 'Precise dosing and coating options.', img: '/cat-tablets.png' }
         ].map((cat, i) => (
           <ScrollReveal key={i} className="glass product-card" style={{ transitionDelay: `${i * 0.1}s`, padding: 0, background: 'linear-gradient(180deg, #fff 0%, #e8f5e9 100%)' }}>
             <Link to="/products" state={{ selectedCategory: cat.name }} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', padding: '2rem', height: '100%' }}>
               <div className="product-image capability-card-image" style={{ background: 'white', padding: '1.5rem', overflow: 'hidden', marginBottom: '2rem', borderRadius: '15px', height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {cat.img ? (
-                  <img src={`${import.meta.env.VITE_BASE_URL}${cat.img}`} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src={cat.img} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 ) : (
                   <ShoppingBag size={56} opacity={0.1} color="black" />
                 )}
