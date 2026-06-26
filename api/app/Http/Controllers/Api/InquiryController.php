@@ -8,10 +8,16 @@ use Illuminate\Http\Request;
 
 class InquiryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $inquiries = Inquiry::with('product')->orderBy('created_at', 'desc')->get();
-        return response()->json($inquiries);
+        $limit = $request->get('limit', 10);
+        $inquiries = Inquiry::with('product')->orderBy('created_at', 'desc')->paginate($limit);
+        return response()->json([
+            'data' => $inquiries->items(),
+            'total' => $inquiries->total(),
+            'current_page' => $inquiries->currentPage(),
+            'last_page' => $inquiries->lastPage()
+        ]);
     }
 
     public function store(Request $request)

@@ -3,6 +3,20 @@ import axios from 'axios';
 import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye, X, ArrowLeft, Loader2 } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 
+// Add Authorization header to all requests if token exists in localStorage
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 const Admin = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
   const [username, setUsername] = useState('');
@@ -131,7 +145,8 @@ const Admin = () => {
 
     try {
       if (editingProduct) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/products/${editingProduct.id}`, formData, {
+        formData.append('_method', 'PUT');
+        await axios.post(`${import.meta.env.VITE_API_URL}/products/${editingProduct.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
@@ -833,7 +848,7 @@ const Admin = () => {
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(26, 46, 24, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '1rem' }}>
-          <div className="glass modal-panel" style={{ maxWidth: '400px', textAlign: 'center' }}>
+          <div className="glass modal-panel" style={{ maxWidth: '400px', textAlign: 'center', padding: '2rem' }}>
             <div style={{ color: '#EF4444', marginBottom: '1.5rem' }}>
               <Trash2 size={48} />
             </div>

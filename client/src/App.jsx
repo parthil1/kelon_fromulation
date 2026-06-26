@@ -739,9 +739,8 @@ const Products = () => {
                       alt={p.name}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = '';
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div style="opacity: 0.2"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E";
+                        e.target.style.opacity = '0.2';
                       }}
                     />
                   ) : <div style={{ opacity: 0.2 }}><ShoppingBag size={50} /></div>}
@@ -826,9 +825,8 @@ const ProductDetail = () => {
                   alt={product.name}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '';
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = '<div style="opacity: 0.1"><svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
+                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E";
+                    e.target.style.opacity = '0.1';
                   }}
                 />
               ) : <ShoppingBag size={140} opacity={0.1} />}

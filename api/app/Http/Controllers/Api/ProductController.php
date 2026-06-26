@@ -113,6 +113,12 @@ class ProductController extends Controller
             }
             $path = $request->file('image')->store('uploads', 'public');
             $validated['image_url'] = '/storage/' . $path;
+        } elseif ($request->has('image_url') && empty($request->input('image_url'))) {
+            // Delete old image if it was removed in frontend
+            if ($product->image_url && str_contains($product->image_url, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+            }
+            $validated['image_url'] = null;
         }
 
         $validated['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN);

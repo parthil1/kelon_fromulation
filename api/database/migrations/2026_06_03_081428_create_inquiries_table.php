@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('inquiries');
         Schema::create('inquiries', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('set null');
+            $table->integer('product_id')->nullable();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('set null');
             $table->string('name');
             $table->string('email');
             $table->string('phone')->nullable();
