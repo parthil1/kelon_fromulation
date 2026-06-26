@@ -71,8 +71,10 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('uploads', 'public');
-            $validated['image_url'] = '/storage/' . $path;
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+            $validated['image_url'] = '/uploads/' . $filename;
         }
 
         $validated['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN);
@@ -108,15 +110,31 @@ class ProductController extends Controller
 
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($product->image_url && str_contains($product->image_url, '/storage/')) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+            if ($product->image_url) {
+                if (str_contains($product->image_url, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+                } elseif (str_contains($product->image_url, '/uploads/')) {
+                    $oldPath = public_path(str_replace('/uploads/', 'uploads/', $product->image_url));
+                    if (file_exists($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                }
             }
-            $path = $request->file('image')->store('uploads', 'public');
-            $validated['image_url'] = '/storage/' . $path;
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+            $validated['image_url'] = '/uploads/' . $filename;
         } elseif ($request->has('image_url') && empty($request->input('image_url'))) {
             // Delete old image if it was removed in frontend
-            if ($product->image_url && str_contains($product->image_url, '/storage/')) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+            if ($product->image_url) {
+                if (str_contains($product->image_url, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+                } elseif (str_contains($product->image_url, '/uploads/')) {
+                    $oldPath = public_path(str_replace('/uploads/', 'uploads/', $product->image_url));
+                    if (file_exists($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                }
             }
             $validated['image_url'] = null;
         }
@@ -130,8 +148,15 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        if ($product->image_url && str_contains($product->image_url, '/storage/')) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+        if ($product->image_url) {
+            if (str_contains($product->image_url, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+            } elseif (str_contains($product->image_url, '/uploads/')) {
+                $oldPath = public_path(str_replace('/uploads/', 'uploads/', $product->image_url));
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
         }
         $product->delete();
         return response()->json(['message' => 'Product deleted successfully']);

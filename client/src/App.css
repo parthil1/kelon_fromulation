@@ -850,6 +850,7 @@ section.process-section {
 
 .interest-icon-box svg {
   color: #4b5563 !important;
+  stroke: #4b5563 !important;
 }
 
 .interest-icon-box::after {
