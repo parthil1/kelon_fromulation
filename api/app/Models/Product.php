@@ -20,8 +20,17 @@ class Product extends Model
         'formulas' => 'array',
     ];
 
+    protected $appends = [
+        'category_name',
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function getCategoryNameAttribute()
+    {
+        return $this->category ? $this->category->name : null;
     }
 }

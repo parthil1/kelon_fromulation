@@ -566,6 +566,7 @@ const Certificates = () => {
   const certifications = [
     { name: 'HACCP', img: '/cert-haccp.png' },
     { name: 'FSSAI', img: '/cert-fssai.png' },
+    { name: 'ISO 9001:2015', img: '/cert-iso-9001.png' },
     { name: 'ISO 22000', img: '/cert-iso-22000.png' },
     { name: 'WHO-GMP', img: '/cert-who-gmp.png' },
     // { name: 'HALAL', img: '/cert-halal.jpg' },
