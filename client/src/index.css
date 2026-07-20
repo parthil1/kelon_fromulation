@@ -188,7 +188,7 @@ h4 {
   width: 100%;
   padding: 0;
   z-index: 1000;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.35s ease, background 0.35s ease, backdrop-filter 0.35s ease;
   background: #ffffff;
   border-bottom: 3px solid #00c853;
   box-shadow: 0 2px 14px rgba(27, 61, 26, 0.08);
@@ -196,6 +196,16 @@ h4 {
 
 .navbar::after {
   display: none;
+}
+
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+.navbar.scrolled .nav-logo-image {
+  height: 66px;
 }
 
 .navbar .container {
@@ -206,7 +216,7 @@ h4 {
 }
 
 .navbar.scrolled {
-  box-shadow: 0 8px 20px rgba(27, 61, 26, 0.12);
+  box-shadow: 0 8px 24px rgba(27, 61, 26, 0.12);
 }
 
 .nav-content {
@@ -266,8 +276,11 @@ h4 {
   color: #0f2c0e;
   text-decoration: none;
   font-weight: 700;
-  transition: 0.3s;
+  transition: color 0.3s ease;
   font-size: 1.02rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-links a:hover,
@@ -275,40 +288,34 @@ h4 {
   color: var(--primary-cta);
 }
 
-.nav-links a.active {
-  position: relative;
-}
-
-.nav-links a.active::after {
-  content: '';
+.nav-underline {
   position: absolute;
   bottom: -12px;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: var(--primary-cta);
   border-radius: 999px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00e676 0%, var(--primary-cta) 40%, var(--primary) 100%);
+  background: linear-gradient(135deg, #00e676 0%, var(--primary-cta) 45%, var(--primary) 100%);
   color: #ffffff;
-  padding: 0.8rem 1.8rem;
-  border-radius: 50px;
+  padding: 0.85rem 1.9rem;
+  border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
-  transition: 0.3s;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, background-position 0.5s ease;
   display: inline-block;
   border: none;
   cursor: pointer;
-  box-shadow: 0 6px 24px var(--primary-glow);
-  letter-spacing: 0.03em;
+  box-shadow: 0 6px 20px var(--primary-glow);
+  letter-spacing: 0.02em;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #69f0ae 0%, var(--primary-cta) 50%, var(--primary-dark) 100%);
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px var(--primary-glow);
+  box-shadow: 0 14px 30px var(--primary-glow);
   color: #ffffff;
 }
 
@@ -317,22 +324,20 @@ h4 {
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 2rem;
-  border-radius: 50px;
-  border: 2px solid var(--primary-cta);
-  background: rgba(255, 255, 255, 0.75);
-  color: var(--primary-dark);
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
   font-weight: 700;
   text-decoration: none;
-  transition: 0.3s;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, border-color 0.3s ease;
   backdrop-filter: blur(8px);
 }
 
 .btn-outline:hover {
-  background: var(--primary-cta);
-  color: #fff;
-  border-color: var(--primary-cta);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-color);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--accent-lime);
+  color: #ffffff;
 }
 
 .product-grid {
@@ -1158,7 +1163,7 @@ h4 {
 .glass:hover {
   transform: translateY(-6px);
   border-color: var(--primary-cta);
-  box-shadow: var(--shadow-lg), var(--shadow-color);
+  box-shadow: var(--shadow-color);
 }
 
 .product-card:hover .product-image img {
@@ -1198,8 +1203,8 @@ input:focus,
 textarea:focus,
 select:focus {
   border-color: var(--primary-cta) !important;
-  box-shadow: 0 0 0 3px var(--primary-soft);
-  transition: 0.3s;
+  box-shadow: 0 0 0 4px var(--primary-soft);
+  transform: translateY(-1px);
 }
 
 label {
@@ -1210,11 +1215,11 @@ label {
   padding: 1.2rem;
   background: var(--input-bg);
   border: 1.5px solid var(--input-border);
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--text-main);
   outline: none;
   font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .form-input::placeholder {

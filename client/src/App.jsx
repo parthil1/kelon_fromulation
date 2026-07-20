@@ -1,44 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
-import { Layout, Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, User, MessageSquare, Package, Plus, Pill, Sparkles, Boxes, Zap, Lightbulb, Settings, Send, Clock, Truck, Flag, Eye, Trophy } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion, MotionConfig } from 'framer-motion';
+import { Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, Package, Plus, Boxes, Zap, Lightbulb, Settings, Send, Clock, Truck, Flag, Eye, Trophy } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
 import { useSEO } from './hooks/useSEO';
+import ScrollReveal from './motion/ScrollReveal';
+import CountUp from './motion/CountUp';
+import ProcessLifecycle from './components/ProcessLifecycle';
+import { fadeUp, fadeIn, fadeLeft, fadeRight, scaleIn, staggerContainer, heroContainer, heroItem, viewportOnce, viewportOnceEarly, EASE } from './motion/variants';
 import './App.css';
 import './responsive.css';
 
-// Animation Component
-const ScrollReveal = ({ children, className, style }) => {
-  const [active, setActive] = useState(false);
-  const ref = React.useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setActive(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={ref} style={style} className={`${className || ''} reveal-on-scroll ${active ? 'active' : ''}`}>
-      {children}
-    </div>
-  );
-};
+const MotionLink = motion.create(Link);
 
 // Core Components
+const NavUnderline = ({ prefersReducedMotion }) => (
+  <motion.span
+    className="nav-underline"
+    layoutId="nav-underline"
+    transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 32 }}
+  />
+);
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -109,92 +100,147 @@ const Navbar = () => {
             aria-expanded={isMenuOpen}
             style={{ zIndex: 2002 }}
           >
-            {isMenuOpen ? <Plus size={28} style={{ transform: 'rotate(45deg)' }} /> : <Menu size={28} />}
+            <motion.span
+              animate={{ rotate: isMenuOpen ? 45 : 0 }}
+              transition={{ duration: 0.3, ease: EASE }}
+              style={{ display: 'inline-flex' }}
+            >
+              {isMenuOpen ? <Plus size={28} /> : <Menu size={28} />}
+            </motion.span>
           </button>
 
           <ul className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-            <li><a href="#home" onClick={(e) => handleNavClick(e, 'home')} className={`nav-link ${activeClass('home')}`}>Home</a></li>
-            <li><NavLink to="/products" onClick={() => setIsMenuOpen(false)} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Products</NavLink></li>
-            <li><a href="#about" onClick={(e) => handleNavClick(e, 'about')} className={`nav-link ${activeClass('about')}`}>About Us</a></li>
-            <li><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className={`nav-link ${activeClass('contact')}`}>Contact</a></li>
+            <li>
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className={`nav-link ${activeClass('home')}`}>
+                Home
+                {activeClass('home') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
+              </a>
+            </li>
+            <li>
+              <NavLink to="/products" onClick={() => setIsMenuOpen(false)} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                {({ isActive }) => (
+                  <>
+                    Products
+                    {isActive && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
+                  </>
+                )}
+              </NavLink>
+            </li>
+            <li>
+              <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className={`nav-link ${activeClass('about')}`}>
+                About Us
+                {activeClass('about') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
+              </a>
+            </li>
+            <li>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className={`nav-link ${activeClass('contact')}`}>
+                Contact
+                {activeClass('contact') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
+              </a>
+            </li>
             {/* <li><NavLink to="/admin" onClick={() => setIsMenuOpen(false)} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><User size={16} /> Admin</NavLink></li> */}
           </ul>
         </div>
       </nav>
-      <button
-        type="button"
-        className={`nav-overlay ${isMenuOpen ? 'active' : ''}`}
-        aria-label="Close menu"
-        onClick={() => setIsMenuOpen(false)}
-      />
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.button
+            type="button"
+            className="nav-overlay active"
+            aria-label="Close menu"
+            onClick={() => setIsMenuOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 };
 
+const heroSlides = [
+  { img: '/hero-factory.png' },
+  { img: '/hero-lab.png' },
+  { img: '/hero-products.png' },
+];
+
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slides = [
-    {
-      label: 'Third-Party Manufacturing Experts',
-      title: <>The Future of <span>Nutraceutical</span> Innovation</>,
-      desc: 'Your premier partner for high-quality private label supplements, advanced formulations, and end-to-end manufacturing excellence.',
-      img: '/hero-factory.png'
-    },
-    {
-      label: 'Scientific Excellence',
-      title: <>Precision <span>Formulations</span> at Scale</>,
-      desc: 'Bridging the gap between complex science and consumer wellness through advanced, certified manufacturing processes.',
-      img: '/hero-lab.png'
-    },
-    {
-      label: 'Quality Assured',
-      title: <>Premium <span>Packaging</span> Solutions</>,
-      desc: 'Ensuring product integrity and brand prestige through world-class packaging and rigorous quality control.',
-      img: '/hero-products.png'
-    }
-  ];
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6000);
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6500);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, []);
 
   return (
     <section id="home" className="hero-slider">
-      {/* Background Imágenes Loop */}
       <div className="slider-backgrounds">
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`slide-bg ${index === currentSlide ? 'active' : ''}`}
-            style={{ backgroundImage: `linear-gradient(135deg, rgba(27, 61, 26, 0.85) 0%, rgba(60, 93, 57, 0.4) 100%), url(${slide.img})` }}
+        <AnimatePresence>
+          <motion.div
+            key={currentSlide}
+            className="slide-bg active"
+            style={{ backgroundImage: `linear-gradient(135deg, rgba(15, 38, 15, 0.88) 0%, rgba(27, 61, 26, 0.55) 55%, rgba(0, 60, 30, 0.35) 100%), url(${heroSlides[currentSlide].img})` }}
+            initial={{ opacity: 0, scale: prefersReducedMotion ? 1 : 1.02 }}
+            animate={{ opacity: 1, scale: prefersReducedMotion ? 1 : 1.09 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              opacity: { duration: 1.4, ease: 'easeInOut' },
+              scale: { duration: 6.5, ease: 'linear' },
+            }}
           />
-        ))}
+        </AnimatePresence>
+        <div className="hero-vignette" />
       </div>
 
-      {/* Fixed Content Section */}
       <div className="container" style={{ position: 'relative', zIndex: 5 }}>
-        <div className="hero-content">
-          <h4 className="text-label" style={{ letterSpacing: '4px', marginBottom: '1.5rem', color: 'var(--accent-lime)' }}>
+        <motion.div
+          className="hero-content"
+          variants={prefersReducedMotion ? undefined : heroContainer}
+          initial={prefersReducedMotion ? undefined : 'hidden'}
+          animate={prefersReducedMotion ? undefined : 'show'}
+        >
+          <motion.h4
+            className="text-label hero-eyebrow"
+            variants={prefersReducedMotion ? undefined : heroItem}
+          >
             Third-Party Manufacturing Experts
-          </h4>
-          <h1>The Future of <span>Nutraceutical</span> Innovation</h1>
-          <p>
-            Your premier partner for high-quality private label supplements, advanced formulations, and end-to-end manufacturing excellence. Scaling wellness brands since 2026.
-          </p>
-          <div className="hero-actions">
-            <Link to="/products" className="btn-primary" style={{ padding: '1.2rem 2.5rem' }}>Explore Catalog</Link>
-            <a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }} className="btn-outline">
+          </motion.h4>
+          <motion.h1 variants={prefersReducedMotion ? undefined : heroItem}>
+            Precision Nutraceutical <span>Manufacturing</span>, Delivered at Scale
+          </motion.h1>
+          <motion.p variants={prefersReducedMotion ? undefined : heroItem}>
+            Your trusted partner for private label supplements — formulated with scientific rigor, produced in certified facilities, and built for brands who won't compromise on quality.
+          </motion.p>
+          <motion.div className="hero-actions" variants={prefersReducedMotion ? undefined : heroItem}>
+            <MotionLink
+              to="/products"
+              className="btn-primary"
+              style={{ padding: '1.2rem 2.5rem' }}
+              whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+            >
+              Explore Catalog
+            </MotionLink>
+            <motion.a
+              href="#contact"
+              onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }}
+              className="btn-outline"
+              whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+            >
               Get a Quote <ChevronRight size={22} />
-            </a>
-          </div>
-        </div>
+            </motion.a>
+          </motion.div>
+        </motion.div>
       </div>
 
       <div className="slider-dots">
-        {slides.map((_, i) => (
+        {heroSlides.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrentSlide(i)}
@@ -208,48 +254,62 @@ const HeroSlider = () => {
 };
 
 const FeatureStats = () => (
-  <section className="section-alt section-pad">
-    <div className="container grid-3">
+  <section className="section-alt section-pad feature-stats" style={{ position: 'relative', zIndex: 2 }}>
+    <motion.div
+      className="container grid-3"
+      variants={staggerContainer(0.15)}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewportOnce}
+    >
       {[
         { icon: <Factory size={32} />, val: '1 Lac Sq.ft +', label: 'Infrastructure Hub' },
         { icon: <Activity size={32} />, val: '400+', label: 'Proven Formulations' },
         { icon: <ShieldCheck size={32} />, val: '11+ Years', label: 'Industry Excellence' }
       ].map((stat, i) => (
-        <ScrollReveal key={i} className={`stat-card stat-card--${i + 1}`} style={{ textAlign: 'center', transitionDelay: `${i * 0.1}s`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <motion.div key={i} className={`stat-card stat-card--${i + 1}`} variants={scaleIn} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="animate-float stat-card-icon" style={{ marginBottom: '1.2rem' }}>{stat.icon}</div>
-          <h2 className="stat-value">{stat.val}</h2>
+          <h2 className="stat-value"><CountUp value={stat.val} /></h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{stat.label}</p>
-        </ScrollReveal>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   </section>
 );
 
 const AboutSummary = () => (
   <section className="section-cream section-pad">
     <div className="container">
-      <ScrollReveal className="glass-highlight">
+      <ScrollReveal>
         <div style={{ textAlign: 'left' }}>
-          <h2 className="text-label" style={{ fontSize: '0.95rem', marginBottom: '1.2rem', letterSpacing: '2.5px' }}>Your Manufacturing Partner</h2>
-          <h2 className="responsive-section-title" style={{ marginBottom: '1.5rem', lineHeight: '1.1' }}>Science-First Formulations <br />at Scale</h2>
-          <p className="lead-text" style={{ color: 'var(--text-muted)', marginBottom: '3rem' }}>
-            Kelon Formulation specializes in developing world-class nutritional solutions. We bridge the gap between complex science and consumer wellness through our advanced, certified manufacturing processes. Safe, effective, and sustainably developed—every time.
-          </p>
-          <div className="about-features-grid">
+          <div style={{ maxWidth: '820px' }}>
+            <h2 className="text-label" style={{ fontSize: '0.95rem', marginBottom: '1.2rem', letterSpacing: '2.5px' }}>Your Manufacturing Partner</h2>
+            <h2 className="responsive-section-title" style={{ marginBottom: '1.5rem', lineHeight: '1.1' }}>Science-First Formulations <br />at Scale</h2>
+            <p className="lead-text" style={{ color: 'var(--text-muted)', marginBottom: '3rem' }}>
+              Kelon Formulation specializes in developing world-class nutritional solutions. We bridge the gap between complex science and consumer wellness through our advanced, certified manufacturing processes. Safe, effective, and sustainably developed—every time.
+            </p>
+          </div>
+          <motion.div
+            className="about-features-grid"
+            variants={staggerContainer(0.12)}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewportOnce}
+          >
             {[
               { icon: <FlaskConical size={32} />, title: 'Advanced R&D', desc: 'Cutting-edge laboratory for custom formulations and stability testing.' },
               { icon: <ShieldCheck size={32} />, title: 'Quality Assurance', desc: 'Rigorous multi-stage testing ensuring 100% compliance with global standards.' },
               { icon: <Zap size={32} />, title: 'Rapid Production', desc: 'High-speed automated lines for effervescent, capsules, and powders.' }
             ].map((feature, i) => (
-              <div key={i} className="about-feature-card animate-fade" style={{ transitionDelay: `${i * 0.1}s` }}>
+              <motion.div key={i} className="about-feature-card" variants={fadeUp} whileHover={{ y: -6 }}>
                 <div className="about-feature-icon">{feature.icon}</div>
                 <div className="about-feature-info">
                   <h3>{feature.title}</h3>
                   <p>{feature.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </ScrollReveal>
     </div>
@@ -268,21 +328,27 @@ const LegacyAbout = () => (
       </ScrollReveal>
 
       <div className="grid-2">
-        <ScrollReveal style={{ textAlign: 'left' }}>
+        <ScrollReveal variants={fadeLeft} style={{ textAlign: 'left' }}>
           <h2 className="subsection-title" style={{ marginBottom: '2rem' }}>World-Class <br />Infrastructure</h2>
           <p className="lead-text" style={{ color: 'var(--text-muted)', marginBottom: '2.5rem' }}>
             Equipped with advanced machinery for effervescent, capsules, and powder production. We operate in ISO-certified, temperate-controlled sterile environments to ensure ultimate product integrity.
           </p>
-          <div className="feature-grid">
+          <motion.div
+            className="feature-grid"
+            variants={staggerContainer(0.08)}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewportOnce}
+          >
             {['Advanced R&D Lab', 'Strict Quality QC', 'Automated Packaging', 'Full Sterilization'].map((feat, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--accent-mint-bg)', padding: '1.2rem', borderRadius: '15px', border: '1px solid var(--border)' }}>
+              <motion.div key={i} variants={fadeUp} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--accent-mint-bg)', padding: '1.2rem', borderRadius: '15px', border: '1px solid var(--border)' }}>
                 <ShieldCheck size={22} color="var(--primary-cta)" />
                 <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{feat}</span>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </ScrollReveal>
-        <ScrollReveal className="glass-highlight feature-card-tall" style={{ background: 'linear-gradient(145deg, #2a4528, #3c5d39, #4a7c47)' }}>
+        <ScrollReveal variants={fadeRight} className="glass-highlight feature-card-tall" style={{ background: 'linear-gradient(145deg, #2a4528, #3c5d39, #4a7c47)' }}>
           <Factory size={200} color="rgba(255,255,255,0.06)" style={{ position: 'absolute' }} />
           <div style={{ textAlign: 'center', zIndex: 1 }}>
             <div className="animate-float" style={{ width: '90px', height: '90px', background: 'linear-gradient(135deg, var(--accent-lime), var(--primary-cta))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', boxShadow: '0 0 40px rgba(197, 232, 108, 0.5)' }}>
@@ -304,14 +370,20 @@ const Capabilities = () => (
         <h2 className="responsive-section-title" style={{ marginBottom: '1.2rem' }}>Manufacturing Capabilities</h2>
         <p style={{ maxWidth: '700px', margin: '0 auto', fontSize: '1.1rem', lineHeight: '1.7', opacity: 0.9 }}>We leverage cutting-edge pharmaceutical technology to deliver diverse delivery formats with maximum bioavailability and stability.</p>
       </ScrollReveal>
-      <div className="product-grid">
+      <motion.div
+        className="product-grid"
+        variants={staggerContainer(0.1)}
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+      >
         {[
           { name: 'Effervescent Tablets', desc: 'Industry-leading rapid-dissolve tech.', img: '/cat-effervescent.png' },
           { name: 'Capsules', desc: 'Secure and stable active delivery.', img: '/cat-capsules.png' },
           { name: 'Protein Powders', desc: 'High-purity, easy-mix formulations.', img: '/cat-powders.png' },
           { name: 'Standard Tablets', desc: 'Precise dosing and coating options.', img: '/cat-tablets.png' }
         ].map((cat, i) => (
-          <ScrollReveal key={i} className="glass product-card" style={{ transitionDelay: `${i * 0.1}s`, padding: 0, background: 'linear-gradient(180deg, #fff 0%, #e8f5e9 100%)' }}>
+          <motion.div key={i} className="glass product-card capability-card" variants={fadeUp} whileHover={{ y: -8 }} style={{ padding: 0, background: 'linear-gradient(180deg, #fff 0%, #e8f5e9 100%)' }}>
             <Link to="/products" state={{ selectedCategory: cat.name }} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', padding: '2rem', height: '100%' }}>
               <div className="product-image capability-card-image" style={{ background: 'white', padding: '1.5rem', overflow: 'hidden', marginBottom: '2rem', borderRadius: '15px', height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {cat.img ? (
@@ -328,9 +400,9 @@ const Capabilities = () => (
                 </div>
               </div>
             </Link>
-          </ScrollReveal>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   </section>
 );
@@ -363,13 +435,13 @@ const ContactSection = () => {
         </ScrollReveal>
 
         <div className="grid-contact">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="contact-info-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {[
               { icon: <Mail size={24} />, title: 'Email Us', val: 'info@kelonformulation.com', sub: 'Technical Queries' },
               { icon: <Phone size={24} />, title: 'Direct Line', val: '+91 9104882188', sub: '8 AM - 6 PM EST' },
               { icon: <Factory size={24} />, title: 'Facility', val: 'Shed no. 14, Nandanvan 04 Ind. Park, Bakrol Bujrang, Ahmedabad - 382430', sub: 'Main Operations' }
             ].map((item, i) => (
-              <ScrollReveal key={i} className="glass" style={{ padding: '2.5rem 2rem', transitionDelay: `${i * 0.15}s` }}>
+              <ScrollReveal key={i} className="glass" delay={i * 0.1} style={{ padding: '2.5rem 2rem' }}>
                 <div className="contact-card-row">
                   <div style={{ background: 'var(--accent-mint-bg)', padding: '1rem', borderRadius: '15px', color: 'var(--primary-cta)', border: '1px solid var(--border)' }}>
                     {item.icon}
@@ -384,7 +456,7 @@ const ContactSection = () => {
             ))}
           </div>
 
-          <ScrollReveal className="glass" style={{ padding: '3.5rem', border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-lg)' }}>
+          <ScrollReveal variants={fadeRight} className="glass" style={{ padding: '3.5rem', border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-lg)' }}>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem' }}>
               <div className="grid-form-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
@@ -404,11 +476,24 @@ const ContactSection = () => {
                 <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.8px' }}>Project Details</label>
                 <textarea required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="Format, Quantity, Timeline..." rows={5} className="form-input" style={{ width: '100%', resize: 'none' }} />
               </div>
-              <button type="submit" className="btn-primary" disabled={status === 'sending'} style={{ padding: '1.3rem', fontSize: '1.1rem', fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase' }}>
+              <motion.button
+                type="submit"
+                className="btn-primary"
+                disabled={status === 'sending'}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                style={{ padding: '1.3rem', fontSize: '1.1rem', fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase' }}
+              >
                 {status === 'sending' ? 'TRANSMITTING...' : 'START YOUR PROJECT'}
-              </button>
-              {status === 'success' && <div style={{ background: 'var(--accent-mint-bg)', padding: '1.2rem', borderRadius: '12px', color: 'var(--primary-dark)', border: '1px solid var(--border)', textAlign: 'center', fontWeight: 600 }}>Message Received! We'll contact you shortly.</div>}
-              {status === 'error' && <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1.2rem', borderRadius: '12px', color: '#ef4444', textAlign: 'center' }}>Error. Please try again.</div>}
+              </motion.button>
+              <AnimatePresence>
+                {status === 'success' && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ background: 'var(--accent-mint-bg)', padding: '1.2rem', borderRadius: '12px', color: 'var(--primary-dark)', border: '1px solid var(--border)', textAlign: 'center', fontWeight: 600, overflow: 'hidden' }}>Message Received! We'll contact you shortly.</motion.div>
+                )}
+                {status === 'error' && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1.2rem', borderRadius: '12px', color: '#ef4444', textAlign: 'center', overflow: 'hidden' }}>Error. Please try again.</motion.div>
+                )}
+              </AnimatePresence>
             </form>
           </ScrollReveal>
         </div>
@@ -418,30 +503,30 @@ const ContactSection = () => {
 };
 
 const ManufacturingProcess = () => (
-  <section id="process" className="process-section" style={{ background: "#f1f4eb", padding: "20px 0" }}>
+  <section id="process" className="process-section">
     <div className="container">
       <ScrollReveal>
-        <div className="process-header" style={{ marginBottom: '20px', textAlign: 'center' }}>
+        <div className="process-header" style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
           <h4 className="text-label" style={{ marginBottom: '0.5rem', letterSpacing: '3px' }}>Workflow Excellence</h4>
           <h2 className="responsive-section-title">
             Science-Driven <br />
             <span className="text-gradient">Production Lifecycle</span>
           </h2>
         </div>
-        <div className="process-image-wrapper">
-          <img
-            src="/process.png"
-            alt="Kelon Manufacturing Process Diagram"
-            className="process-diagram"
-          />
-        </div>
       </ScrollReveal>
+      <ProcessLifecycle />
     </div>
   </section>
 );
 
 const Footer = () => (
-  <footer className="footer-premium">
+  <motion.footer
+    className="footer-premium"
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    viewport={viewportOnceEarly}
+    transition={{ duration: 0.9, ease: EASE }}
+  >
     <div className="container">
       <div className="footer-grid">
         <div className="footer-links-group">
@@ -493,7 +578,7 @@ const Footer = () => (
         </div>
       </div>
     </div>
-  </footer>
+  </motion.footer>
 );
 
 const ServiceFeatures = () => {
@@ -514,9 +599,15 @@ const ServiceFeatures = () => {
             Leading Nutraceutical & <br /> dietary supplement manufacturer
           </h2>
         </ScrollReveal>
-        <div className="features-grid">
+        <motion.div
+          className="features-grid"
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
           {features.map((f, i) => (
-            <ScrollReveal key={i} className="feature-item" style={{ transitionDelay: `${i * 0.1}s` }}>
+            <motion.div key={i} className="feature-item" variants={fadeUp}>
               <div className="feature-icon-circle">
                 {f.icon}
               </div>
@@ -524,9 +615,9 @@ const ServiceFeatures = () => {
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
               </div>
-            </ScrollReveal>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -543,20 +634,26 @@ const MissionVision = () => {
     <section className="mission-vision-section" style={{ backgroundImage: `linear-gradient(rgba(244, 250, 246, 0.92), rgba(244, 250, 246, 0.88)), url('/hero-lab.png')`, padding: '7rem 0' }}>
       <div className="container">
         <ScrollReveal style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <h4 className="text-label" style={{ color: '#ff4d4d', fontWeight: 800, letterSpacing: '2px', marginBottom: '1rem', fontSize: '0.9rem' }}>Who We Are</h4>
+          <h4 className="text-label" style={{ fontWeight: 800, letterSpacing: '2px', marginBottom: '1rem', fontSize: '0.9rem' }}>Who We Are</h4>
           <h2 className="responsive-section-title" style={{ maxWidth: '750px', margin: '0 auto', lineHeight: '1.2', fontSize: '2rem' }}>A Helping Hand to Manufacture Your Pharmaceutical Products</h2>
         </ScrollReveal>
-        <div className="mission-grid">
+        <motion.div
+          className="mission-grid"
+          variants={staggerContainer(0.12)}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
           {cards.map((card, i) => (
-            <ScrollReveal key={i} className="mission-card" style={{ transitionDelay: `${i * 0.15}s` }}>
+            <motion.div key={i} className="mission-card" variants={scaleIn} whileHover={{ y: -8 }}>
               <div className="mission-icon-box">
                 {card.icon}
               </div>
               <h3>{card.title}</h3>
               <p>{card.desc}</p>
-            </ScrollReveal>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -586,7 +683,7 @@ const Certificates = () => {
           <h2>CERTIFICATIONS</h2>
         </ScrollReveal>
       </div>
-      <div className="certificates-container">
+      <ScrollReveal variants={fadeIn} className="certificates-container">
         <div className="certificates-track">
           {scrollItems.map((cert, i) => (
             <div key={i} className="certificate-item">
@@ -596,7 +693,7 @@ const Certificates = () => {
             </div>
           ))}
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 };
@@ -611,6 +708,7 @@ const Home = () => {
   return (
     <>
       <HeroSlider />
+      <FeatureStats />
       <ServiceFeatures />
       <div id="about">
         <AboutSummary />
@@ -729,10 +827,16 @@ const Products = () => {
           <p>Synchronizing Catalog...</p>
         </div>
       ) : products.length > 0 ? (
-        <div className="product-grid">
+        <motion.div
+          className="product-grid"
+          key={activeCategory ?? 'all'}
+          variants={staggerContainer(0.06)}
+          initial="hidden"
+          animate="show"
+        >
           {products.map(p => (
             <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <ScrollReveal className="glass product-card">
+              <motion.div className="glass product-card" variants={fadeUp} whileHover={{ y: -6 }}>
                 <div className="product-image">
                   {p.image_url ? (
                     <img
@@ -751,18 +855,24 @@ const Products = () => {
                   <p>{p.description}</p>
                   <div className="product-link">Specs <ChevronRight size={18} /></div>
                 </div>
-              </ScrollReveal>
+              </motion.div>
             </Link>
           ))}
-        </div>
+        </motion.div>
       ) : (
-        <ScrollReveal className="glass" style={{ textAlign: 'center', padding: '8rem 2rem', border: '1px dashed var(--primary)', background: 'var(--primary-soft)' }}>
+        <motion.div
+          className="glass"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE }}
+          style={{ textAlign: 'center', padding: '8rem 2rem', border: '1px dashed var(--primary)', background: 'var(--primary-soft)' }}
+        >
           <Package size={80} style={{ marginBottom: '2rem', color: 'var(--primary)', opacity: 0.5 }} />
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', fontWeight: 800 }}>Currently item is not available</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
             We are currently optimizing our production lines for this category. Contact our team to discuss custom formulation requirements or check back soon for our updated catalog.
           </p>
-        </ScrollReveal>
+        </motion.div>
       )}
     </div>
   );
@@ -814,11 +924,22 @@ const ProductDetail = () => {
   if (!product) return <div className="container page-offset" style={{ textAlign: 'center' }}><div className="glass" style={{ padding: '5rem', maxWidth: '600px', margin: '0 auto' }}><Package size={80} opacity={0.3} color="#ef4444" /><h1 style={{ marginTop: '2rem' }}>Entry Not Found</h1><Link to="/products" className="btn-primary" style={{ marginTop: '2rem' }}>Back to Catalog</Link></div></div>;
 
   return (
-    <div className="container page-offset" style={{ paddingBottom: '8rem' }}>
+    <motion.div
+      className="container page-offset"
+      style={{ paddingBottom: '8rem' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <Link to="/products" style={{ color: 'var(--primary-cta)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '3rem', fontWeight: 700 }}><ChevronRight style={{ transform: 'rotate(180deg)' }} size={24} /> BACK TO CATALOG</Link>
       <div className="product-detail-grid">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <ScrollReveal className="glass" style={{ padding: '2rem', height: 'fit-content' }}>
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}
+        >
+          <div className="glass" style={{ padding: '2rem', height: 'fit-content' }}>
             <div className="detail-image-container">
               {product.image_url ? (
                 <img
@@ -832,25 +953,29 @@ const ProductDetail = () => {
                 />
               ) : <ShoppingBag size={140} opacity={0.1} />}
             </div>
-          </ScrollReveal>
+          </div>
 
-          <ScrollReveal className="glass" style={{ padding: '2.5rem', border: '1px solid var(--border-strong)' }}>
+          <div className="glass" style={{ padding: '2.5rem', border: '1px solid var(--border-strong)' }}>
             <h3 style={{ fontSize: '1.4rem', marginBottom: '1.5rem', fontWeight: 800 }}>Quick Inquiry</h3>
             <form onSubmit={handleInquirySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <input required placeholder="Your Name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="form-input" />
               <input required type="email" placeholder="Business Email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="form-input" />
               <input required placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="form-input" />
               <textarea placeholder="Message" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} rows={3} className="form-input" style={{ resize: 'none' }} />
-              <button type="submit" className="btn-primary" disabled={status === 'sending'} style={{ padding: '0.8rem', width: '100%' }}>
+              <motion.button type="submit" className="btn-primary" disabled={status === 'sending'} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} style={{ padding: '0.8rem', width: '100%' }}>
                 {status === 'sending' ? 'SENDING...' : 'ENQUIRE NOW'}
-              </button>
+              </motion.button>
               {status === 'success' && <p style={{ color: 'var(--primary)', fontSize: '0.8rem', textAlign: 'center' }}>Sent successfully!</p>}
               {status === 'error' && <p style={{ color: '#ef4444', fontSize: '0.8rem', textAlign: 'center' }}>Error sending message.</p>}
             </form>
-          </ScrollReveal>
-        </div>
+          </div>
+        </motion.div>
 
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
+        >
           <h4 className="text-label" style={{ fontSize: '0.75rem', letterSpacing: '2.5px', marginBottom: '1rem' }}>{product.category_name} Formulation</h4>
           <h1 className="responsive-h1-large">{product.name}</h1>
           <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: '1.8' }}>{product.description}</p>
@@ -878,7 +1003,7 @@ const ProductDetail = () => {
               <h3 className="text-label" style={{ fontSize: '1.1rem', marginBottom: '0.8rem', letterSpacing: '1px' }}>Available Formulations</h3>
               <div className="formulas-list">
                 {product.formulas.split('\n').filter(f => f.trim()).map((formula, i) => (
-                  <ScrollReveal key={i} className="formula-card" style={{ transitionDelay: `${i * 0.1}s` }}>
+                  <ScrollReveal key={i} className="formula-card" delay={i * 0.08}>
                     <div className="formula-content">
                       {formula.split('+').map((ingredient, j) => (
                         <span key={j} className="formula-ingredient">
@@ -892,9 +1017,9 @@ const ProductDetail = () => {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -906,20 +1031,22 @@ const FooterWrapper = () => {
 };
 
 const App = () => (
-  <Router>
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Navbar />
-      <div style={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/product/:slug" element={<ProductDetail />} />
-          <Route path="/admin/*" element={<Admin />} />
-        </Routes>
+  <MotionConfig reducedMotion="user">
+    <Router>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Navbar />
+        <div style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/admin/*" element={<Admin />} />
+          </Routes>
+        </div>
+        <FooterWrapper />
       </div>
-      <FooterWrapper />
-    </div>
-  </Router>
+    </Router>
+  </MotionConfig>
 );
 
 export default App;

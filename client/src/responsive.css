@@ -12,13 +12,13 @@ canvas {
 }
 
 .section-pad {
-  padding-top: clamp(2.5rem, 5vw, 4rem);
-  padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  padding-top: clamp(2.75rem, 6vw, 5.5rem);
+  padding-bottom: clamp(2.75rem, 6vw, 5.5rem);
 }
 
 .section-pad-lg {
-  padding-top: clamp(3rem, 7vw, 6rem);
-  padding-bottom: clamp(3rem, 7vw, 6rem);
+  padding-top: clamp(3.25rem, 8vw, 7rem);
+  padding-bottom: clamp(3.25rem, 8vw, 7rem);
 }
 
 .lead-text {
@@ -192,7 +192,20 @@ canvas {
 
   .nav-links li {
     width: 100%;
+    opacity: 0;
+    transform: translateX(16px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
   }
+
+  .nav-links.active li {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .nav-links.active li:nth-child(1) { transition-delay: 0.08s; }
+  .nav-links.active li:nth-child(2) { transition-delay: 0.13s; }
+  .nav-links.active li:nth-child(3) { transition-delay: 0.18s; }
+  .nav-links.active li:nth-child(4) { transition-delay: 0.23s; }
 
   .nav-links a {
     display: block;
@@ -201,9 +214,10 @@ canvas {
     font-size: 1.05rem;
   }
 
-  .nav-links a.active::after {
+  .nav-underline {
     bottom: 0.35rem;
     width: 2.5rem;
+    height: 3px;
   }
 
   .nav-links.active {
@@ -238,12 +252,13 @@ canvas {
   }
 
   .hero-slider {
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 550px !important;
-    padding-top: calc(var(--nav-height) + 2.5rem) !important;
-    padding-bottom: 3rem !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    padding-top: calc(var(--nav-height) + 1.5rem) !important;
+    padding-bottom: 4.5rem !important;
     text-align: center !important;
+    overflow: visible !important;
   }
 
   .hero-slider .slide {
@@ -280,10 +295,11 @@ canvas {
     text-align: center;
   }
 
-  .hero .text-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em !important;
-    padding: 0.35rem 0.85rem;
+  .hero .text-label,
+  .hero-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em !important;
+    padding: 0.45rem 0.9rem;
   }
 
   .benefits-list {
@@ -490,9 +506,16 @@ canvas {
   .animate-float,
   .reveal-on-scroll,
   .hero::before,
-  .hero::after {
+  .hero::after,
+  .nav-links li,
+  .slider-dots .dot.active::after {
     animation: none !important;
     transition: none !important;
+  }
+
+  .nav-links li {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
