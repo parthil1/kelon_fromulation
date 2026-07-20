@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
-import { motion, AnimatePresence, useReducedMotion, MotionConfig } from 'framer-motion';
-import { Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, Package, Plus, Boxes, Zap, Lightbulb, Settings, Send, Clock, Truck, Flag, Eye, Trophy } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform, MotionConfig } from 'framer-motion';
+import { Menu, ShoppingBag, Phone, Mail, ChevronRight, Activity, FlaskConical, ShieldCheck, Factory, Package, Plus, Boxes, Zap, Lightbulb, Settings, Send, Clock, Truck, Flag, Eye, Trophy, CheckCircle2, ArrowUpRight } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
 import { useSEO } from './hooks/useSEO';
 import ScrollReveal from './motion/ScrollReveal';
 import CountUp from './motion/CountUp';
+import Magnetic from './motion/Magnetic';
+import TiltCard from './motion/TiltCard';
+import SplitText from './motion/SplitText';
 import ProcessLifecycle from './components/ProcessLifecycle';
-import { fadeUp, fadeIn, fadeLeft, fadeRight, scaleIn, staggerContainer, heroContainer, heroItem, viewportOnce, viewportOnceEarly, EASE } from './motion/variants';
+import { fadeUp, fadeIn, fadeLeft, fadeRight, scaleIn, staggerContainer, heroContainer, heroItem, viewportOnce, viewportOnceEarly, cardHoverLift, cardHoverLiftScale, springSoft, springLayout, EASE } from './motion/variants';
 import './App.css';
 import './responsive.css';
 
@@ -138,7 +141,15 @@ const Navbar = () => {
                 {activeClass('contact') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
               </a>
             </li>
-            {/* <li><NavLink to="/admin" onClick={() => setIsMenuOpen(false)} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><User size={16} /> Admin</NavLink></li> */}
+            <li className="nav-cta-item">
+              <a
+                href="#contact"
+                onClick={(e) => handleNavClick(e, 'contact')}
+                className="nav-cta-btn"
+              >
+                Get a Quote
+              </a>
+            </li>
           </ul>
         </div>
       </nav>
@@ -161,14 +172,18 @@ const Navbar = () => {
 };
 
 const heroSlides = [
-  { img: '/hero-factory.png' },
-  { img: '/hero-lab.png' },
-  { img: '/hero-products.png' },
+  { img: '/hero-factory.png', tag: 'Certified Production Lines' },
+  { img: '/hero-lab.png', tag: 'Advanced R&D Science' },
+  { img: '/hero-products.png', tag: 'Global-Ready Private Label' },
 ];
 
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 90]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -178,7 +193,7 @@ const HeroSlider = () => {
   }, []);
 
   return (
-    <section id="home" className="hero-slider">
+    <section id="home" className="hero-slider" ref={sectionRef}>
       <div className="slider-backgrounds">
         <AnimatePresence>
           <motion.div
@@ -197,19 +212,32 @@ const HeroSlider = () => {
         <div className="hero-vignette" />
       </div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 5 }}>
+      <motion.div
+        className="container"
+        style={prefersReducedMotion ? { position: 'relative', zIndex: 5 } : { position: 'relative', zIndex: 5, opacity: contentOpacity, y: contentY }}
+      >
         <motion.div
           className="hero-content"
           variants={prefersReducedMotion ? undefined : heroContainer}
           initial={prefersReducedMotion ? undefined : 'hidden'}
           animate={prefersReducedMotion ? undefined : 'show'}
         >
-          <motion.h4
-            className="text-label hero-eyebrow"
-            variants={prefersReducedMotion ? undefined : heroItem}
-          >
-            Third-Party Manufacturing Experts
-          </motion.h4>
+          <motion.div className="hero-eyebrow-row" variants={prefersReducedMotion ? undefined : heroItem}>
+            <span className="text-label hero-eyebrow">Third-Party Manufacturing Experts</span>
+            <span className="hero-tag-divider" aria-hidden="true" />
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={currentSlide}
+                className="hero-slide-tag"
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.45, ease: EASE }}
+              >
+                {heroSlides[currentSlide].tag}
+              </motion.span>
+            </AnimatePresence>
+          </motion.div>
           <motion.h1 variants={prefersReducedMotion ? undefined : heroItem}>
             Precision Nutraceutical <span>Manufacturing</span>, Delivered at Scale
           </motion.h1>
@@ -217,27 +245,30 @@ const HeroSlider = () => {
             Your trusted partner for private label supplements — formulated with scientific rigor, produced in certified facilities, and built for brands who won't compromise on quality.
           </motion.p>
           <motion.div className="hero-actions" variants={prefersReducedMotion ? undefined : heroItem}>
-            <MotionLink
-              to="/products"
-              className="btn-primary"
-              style={{ padding: '1.2rem 2.5rem' }}
-              whileHover={prefersReducedMotion ? undefined : { y: -3 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-            >
-              Explore Catalog
-            </MotionLink>
-            <motion.a
-              href="#contact"
-              onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }}
-              className="btn-outline"
-              whileHover={prefersReducedMotion ? undefined : { y: -3 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-            >
-              Get a Quote <ChevronRight size={22} />
-            </motion.a>
+            <Magnetic strength={0.25} range={70}>
+              <MotionLink
+                to="/products"
+                className="btn-primary btn-hero"
+                whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+              >
+                Explore Catalog <ArrowUpRight size={20} />
+              </MotionLink>
+            </Magnetic>
+            <Magnetic strength={0.25} range={70}>
+              <motion.a
+                href="#contact"
+                onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }}
+                className="btn-outline btn-hero"
+                whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+              >
+                Get a Quote <ChevronRight size={20} />
+              </motion.a>
+            </Magnetic>
           </motion.div>
         </motion.div>
-      </div>
+      </motion.div>
 
       <div className="slider-dots">
         {heroSlides.map((_, i) => (
@@ -249,6 +280,23 @@ const HeroSlider = () => {
           />
         ))}
       </div>
+
+      <motion.button
+        type="button"
+        className="hero-scroll-cue"
+        onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+        aria-label="Scroll to explore"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.4, duration: 0.8 }}
+      >
+        <span>Scroll</span>
+        <motion.span
+          className="hero-scroll-cue-line"
+          animate={prefersReducedMotion ? undefined : { scaleY: [0.3, 1, 0.3] }}
+          transition={prefersReducedMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: EASE }}
+        />
+      </motion.button>
     </section>
   );
 };
@@ -267,10 +315,12 @@ const FeatureStats = () => (
         { icon: <Activity size={32} />, val: '400+', label: 'Proven Formulations' },
         { icon: <ShieldCheck size={32} />, val: '11+ Years', label: 'Industry Excellence' }
       ].map((stat, i) => (
-        <motion.div key={i} className={`stat-card stat-card--${i + 1}`} variants={scaleIn} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div className="animate-float stat-card-icon" style={{ marginBottom: '1.2rem' }}>{stat.icon}</div>
-          <h2 className="stat-value"><CountUp value={stat.val} /></h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{stat.label}</p>
+        <motion.div key={i} variants={scaleIn}>
+          <TiltCard max={5} className={`stat-card stat-card--${i + 1}`} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="animate-float stat-card-icon" style={{ marginBottom: '1.2rem' }}>{stat.icon}</div>
+            <h2 className="stat-value"><CountUp value={stat.val} /></h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{stat.label}</p>
+          </TiltCard>
         </motion.div>
       ))}
     </motion.div>
@@ -278,7 +328,7 @@ const FeatureStats = () => (
 );
 
 const AboutSummary = () => (
-  <section className="section-cream section-pad">
+  <section className="section-soft section-pad">
     <div className="container">
       <ScrollReveal>
         <div style={{ textAlign: 'left' }}>
@@ -301,7 +351,7 @@ const AboutSummary = () => (
               { icon: <ShieldCheck size={32} />, title: 'Quality Assurance', desc: 'Rigorous multi-stage testing ensuring 100% compliance with global standards.' },
               { icon: <Zap size={32} />, title: 'Rapid Production', desc: 'High-speed automated lines for effervescent, capsules, and powders.' }
             ].map((feature, i) => (
-              <motion.div key={i} className="about-feature-card" variants={fadeUp} whileHover={{ y: -6 }}>
+              <motion.div key={i} className="about-feature-card" variants={cardHoverLift} whileHover="hover">
                 <div className="about-feature-icon">{feature.icon}</div>
                 <div className="about-feature-info">
                   <h3>{feature.title}</h3>
@@ -367,7 +417,13 @@ const Capabilities = () => (
   <section className="section-deep section-pad">
     <div className="container">
       <ScrollReveal style={{ textAlign: 'center', marginBottom: '4rem' }}>
-        <h2 className="responsive-section-title" style={{ marginBottom: '1.2rem' }}>Manufacturing Capabilities</h2>
+        <SplitText
+          as="h2"
+          className="responsive-section-title"
+          style={{ marginBottom: '1.2rem' }}
+          text="Manufacturing Capabilities"
+          viewportTrigger
+        />
         <p style={{ maxWidth: '700px', margin: '0 auto', fontSize: '1.1rem', lineHeight: '1.7', opacity: 0.9 }}>We leverage cutting-edge pharmaceutical technology to deliver diverse delivery formats with maximum bioavailability and stability.</p>
       </ScrollReveal>
       <motion.div
@@ -383,7 +439,7 @@ const Capabilities = () => (
           { name: 'Protein Powders', desc: 'High-purity, easy-mix formulations.', img: '/cat-powders.png' },
           { name: 'Standard Tablets', desc: 'Precise dosing and coating options.', img: '/cat-tablets.png' }
         ].map((cat, i) => (
-          <motion.div key={i} className="glass product-card capability-card" variants={fadeUp} whileHover={{ y: -8 }} style={{ padding: 0, background: 'linear-gradient(180deg, #fff 0%, #e8f5e9 100%)' }}>
+          <motion.div key={i} className="glass card-motion product-card capability-card" variants={cardHoverLift} whileHover="hover" style={{ padding: 0, background: 'linear-gradient(180deg, #fff 0%, #e8f5e9 100%)' }}>
             <Link to="/products" state={{ selectedCategory: cat.name }} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', padding: '2rem', height: '100%' }}>
               <div className="product-image capability-card-image" style={{ background: 'white', padding: '1.5rem', overflow: 'hidden', marginBottom: '2rem', borderRadius: '15px', height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {cat.img ? (
@@ -424,7 +480,7 @@ const ContactSection = () => {
   };
 
   return (
-    <div className="section-cream section-pad-lg">
+    <div className="section-soft section-pad-lg">
       <div className="container">
         <ScrollReveal className="page-header">
           <h4 className="text-label" style={{ letterSpacing: '3px', marginBottom: '1.2rem' }}>Partnership Inquiry</h4>
@@ -456,42 +512,62 @@ const ContactSection = () => {
             ))}
           </div>
 
-          <ScrollReveal variants={fadeRight} className="glass" style={{ padding: '3.5rem', border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-lg)' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem' }}>
-              <div className="grid-form-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.8px' }}>Full Name</label>
-                  <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="John Doe" className="form-input" style={{ width: '100%' }} />
+          <ScrollReveal variants={fadeRight} className="glass contact-form-panel">
+            <form onSubmit={handleSubmit} className="contact-form">
+              <div className="grid-form-2">
+                <div className="form-field">
+                  <label>Full Name</label>
+                  <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="John Doe" className="form-input" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.8px' }}>Business Email</label>
-                  <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="office@brand.com" className="form-input" style={{ width: '100%' }} />
+                <div className="form-field">
+                  <label>Business Email</label>
+                  <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="office@brand.com" className="form-input" />
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.8px' }}>Contact Number</label>
-                <input required value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="+1 (000) 000-0000" className="form-input" style={{ width: '100%' }} />
+              <div className="form-field">
+                <label>Contact Number</label>
+                <input required value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="+1 (000) 000-0000" className="form-input" />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.8px' }}>Project Details</label>
-                <textarea required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="Format, Quantity, Timeline..." rows={5} className="form-input" style={{ width: '100%', resize: 'none' }} />
+              <div className="form-field">
+                <label>Project Details</label>
+                <textarea required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="Format, Quantity, Timeline..." rows={5} className="form-input" style={{ resize: 'none' }} />
               </div>
               <motion.button
                 type="submit"
-                className="btn-primary"
+                className="btn-primary btn-form-submit"
                 disabled={status === 'sending'}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                style={{ padding: '1.3rem', fontSize: '1.1rem', fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase' }}
               >
-                {status === 'sending' ? 'TRANSMITTING...' : 'START YOUR PROJECT'}
+                {status === 'sending' ? 'Transmitting…' : <>Start Your Project <Send size={18} /></>}
               </motion.button>
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {status === 'success' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ background: 'var(--accent-mint-bg)', padding: '1.2rem', borderRadius: '12px', color: 'var(--primary-dark)', border: '1px solid var(--border)', textAlign: 'center', fontWeight: 600, overflow: 'hidden' }}>Message Received! We'll contact you shortly.</motion.div>
+                  <motion.div
+                    className="form-status form-status--success"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <motion.span
+                      initial={{ scale: 0, rotate: -45 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={springSoft}
+                    >
+                      <CheckCircle2 size={22} />
+                    </motion.span>
+                    Message received! We'll contact you shortly.
+                  </motion.div>
                 )}
                 {status === 'error' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1.2rem', borderRadius: '12px', color: '#ef4444', textAlign: 'center', overflow: 'hidden' }}>Error. Please try again.</motion.div>
+                  <motion.div
+                    className="form-status form-status--error"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    Something went wrong. Please try again.
+                  </motion.div>
                 )}
               </AnimatePresence>
             </form>
@@ -529,6 +605,22 @@ const Footer = () => (
   >
     <div className="container">
       <div className="footer-grid">
+        <div className="footer-brand-group">
+          <Link
+            to="/"
+            className="footer-logo-link"
+            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          >
+            <span className="footer-logo-badge">
+              <img src="/kelon-logo.svg" alt="Kelon Formulation" className="footer-logo" />
+            </span>
+          </Link>
+          <p className="footer-tagline">
+            Precision nutraceutical manufacturing for brands that refuse to compromise on quality.
+          </p>
+          <span className="footer-certification"><ShieldCheck size={15} /> WHO-GMP Certified</span>
+        </div>
+
         <div className="footer-links-group">
           <h4 className="footer-title">Explorer</h4>
           <ul className="footer-links-list">
@@ -595,9 +687,14 @@ const ServiceFeatures = () => {
     <section className="section-pad" style={{ background: '#ffffff', padding: '6rem 0' }}>
       <div className="container">
         <ScrollReveal style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <h2 className="responsive-section-title" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 900, fontSize: '2.2rem' }}>
-            Leading Nutraceutical & <br /> dietary supplement manufacturer
-          </h2>
+          <SplitText
+            as="h2"
+            className="responsive-section-title"
+            style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 900, fontSize: '2.2rem' }}
+            text="Leading Nutraceutical & Dietary Supplement Manufacturer"
+            viewportTrigger
+            stagger={0.02}
+          />
         </ScrollReveal>
         <motion.div
           className="features-grid"
@@ -624,6 +721,11 @@ const ServiceFeatures = () => {
 };
 
 const MissionVision = () => {
+  const sectionRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
+
   const cards = [
     { icon: <Flag size={36} />, title: 'MISSION', desc: 'Our Mission is to have a strong and Health world and to achieve the mission we provide our consumers with the best quality drug range at the most affordable rates. So they are easily consuming them and have a healthier version of themselves.' },
     { icon: <Eye size={36} />, title: 'VISION', desc: 'Our vision is to become the First choice of every consumer when it comes to quality treatment. Our vision is to be a top player in the pharmaceutical company by providing high-quality, affordable, and innovative solutions in the market.' },
@@ -631,7 +733,14 @@ const MissionVision = () => {
   ];
 
   return (
-    <section className="mission-vision-section" style={{ backgroundImage: `linear-gradient(rgba(244, 250, 246, 0.92), rgba(244, 250, 246, 0.88)), url('/hero-lab.png')`, padding: '7rem 0' }}>
+    <section className="mission-vision-section" ref={sectionRef}>
+      <div className="mission-vision-bg-wrap">
+        <motion.div
+          className="mission-vision-bg"
+          style={{ backgroundImage: `url('/hero-lab.png')`, y: prefersReducedMotion ? 0 : bgY }}
+        />
+        <div className="mission-vision-overlay" />
+      </div>
       <div className="container">
         <ScrollReveal style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <h4 className="text-label" style={{ fontWeight: 800, letterSpacing: '2px', marginBottom: '1rem', fontSize: '0.9rem' }}>Who We Are</h4>
@@ -645,7 +754,7 @@ const MissionVision = () => {
           viewport={viewportOnce}
         >
           {cards.map((card, i) => (
-            <motion.div key={i} className="mission-card" variants={scaleIn} whileHover={{ y: -8 }}>
+            <motion.div key={i} className="mission-card" variants={cardHoverLiftScale} whileHover="hover">
               <div className="mission-icon-box">
                 {card.icon}
               </div>
@@ -807,7 +916,10 @@ const Products = () => {
           className="category-pill"
           data-active={activeCategory === null}
         >
-          All
+          {activeCategory === null && (
+            <motion.span className="category-pill-bg" layoutId="categoryPillBg" transition={springLayout} />
+          )}
+          <span className="category-pill-label">All</span>
         </button>
         {categories.map(cat => (
           <button
@@ -816,7 +928,10 @@ const Products = () => {
             className="category-pill"
             data-active={activeCategory === cat.id}
           >
-            {cat.name}
+            {activeCategory === cat.id && (
+              <motion.span className="category-pill-bg" layoutId="categoryPillBg" transition={springLayout} />
+            )}
+            <span className="category-pill-label">{cat.name}</span>
           </button>
         ))}
       </div>
@@ -827,38 +942,41 @@ const Products = () => {
           <p>Synchronizing Catalog...</p>
         </div>
       ) : products.length > 0 ? (
-        <motion.div
-          className="product-grid"
-          key={activeCategory ?? 'all'}
-          variants={staggerContainer(0.06)}
-          initial="hidden"
-          animate="show"
-        >
-          {products.map(p => (
-            <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <motion.div className="glass product-card" variants={fadeUp} whileHover={{ y: -6 }}>
-                <div className="product-image">
-                  {p.image_url ? (
-                    <img
-                      src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
-                      alt={p.name}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E";
-                        e.target.style.opacity = '0.2';
-                      }}
-                    />
-                  ) : <div style={{ opacity: 0.2 }}><ShoppingBag size={50} /></div>}
-                </div>
-                <div className="product-info">
-                  <h3>{p.name}</h3>
-                  <p>{p.description}</p>
-                  <div className="product-link">Specs <ChevronRight size={18} /></div>
-                </div>
-              </motion.div>
-            </Link>
-          ))}
-        </motion.div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            className="product-grid"
+            key={activeCategory ?? 'all'}
+            variants={staggerContainer(0.06)}
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+          >
+            {products.map(p => (
+              <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <motion.div className="glass card-motion product-card" variants={cardHoverLift} whileHover="hover">
+                  <div className="product-image">
+                    {p.image_url ? (
+                      <img
+                        src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
+                        alt={p.name}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E";
+                          e.target.style.opacity = '0.2';
+                        }}
+                      />
+                    ) : <div style={{ opacity: 0.2 }}><ShoppingBag size={50} /></div>}
+                  </div>
+                  <div className="product-info">
+                    <h3>{p.name}</h3>
+                    <p>{p.description}</p>
+                    <div className="product-link">Specs <ChevronRight size={18} /></div>
+                  </div>
+                </motion.div>
+              </Link>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       ) : (
         <motion.div
           className="glass"
