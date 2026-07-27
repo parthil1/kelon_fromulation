@@ -13,13 +13,15 @@ import {
 } from 'lucide-react';
 import { staggerContainer, fadeUp, viewportOnceEarly, EASE } from '../motion/variants';
 
+// A single restrained accent (the CTA green) carries every step — no
+// rainbow icon colors — so the lifecycle reads as one calm system.
 const STEPS = [
   {
     num: '01',
     title: 'Research & Development',
     desc: 'Understanding needs and innovating better solutions.',
     icon: Lightbulb,
-    color: '#2e7d32',
+    color: 'var(--cta)',
     img: '/process-steps/step-01.png?v=2',
   },
   {
@@ -27,7 +29,7 @@ const STEPS = [
     title: 'Production',
     desc: 'Advanced manufacturing with high-quality standards.',
     icon: Factory,
-    color: '#00897b',
+    color: 'var(--cta)',
     img: '/process-steps/step-02.png?v=2',
   },
   {
@@ -35,7 +37,7 @@ const STEPS = [
     title: 'Quality Control',
     desc: 'Rigorous testing to ensure safety, purity & effectiveness.',
     icon: Microscope,
-    color: '#1565c0',
+    color: 'var(--cta)',
     img: '/process-steps/step-03.png?v=2',
   },
   {
@@ -43,7 +45,7 @@ const STEPS = [
     title: 'Packing',
     desc: 'Careful packing with hygiene and product protection.',
     icon: Package,
-    color: '#6a1b9a',
+    color: 'var(--cta)',
     img: '/process-steps/step-04.png?v=2',
   },
   {
@@ -51,7 +53,7 @@ const STEPS = [
     title: 'Quality Assurance',
     desc: 'Final verification to deliver nothing but the best.',
     icon: ShieldCheck,
-    color: '#1b5e20',
+    color: 'var(--cta)',
     img: '/process-steps/step-05.png?v=2',
   },
   {
@@ -59,7 +61,7 @@ const STEPS = [
     title: 'Finished Products',
     desc: 'Safe, effective & ready to make a positive impact.',
     icon: Pill,
-    color: '#f9a825',
+    color: 'var(--cta)',
     img: '/process-steps/step-06.png?v=2',
   },
   {
@@ -67,7 +69,7 @@ const STEPS = [
     title: 'Ready to Dispatch',
     desc: 'Prepared with care for timely and safe dispatch.',
     icon: Boxes,
-    color: '#e65100',
+    color: 'var(--cta)',
     img: '/process-steps/step-07.png?v=2',
   },
   {
@@ -75,7 +77,7 @@ const STEPS = [
     title: 'Delivery',
     desc: 'Delivered safely to your doorstep with trust and reliability.',
     icon: Truck,
-    color: '#43a047',
+    color: 'var(--cta)',
     img: '/process-steps/step-08.png?v=2',
   },
 ];

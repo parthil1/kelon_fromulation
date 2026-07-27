@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye, X, ArrowLeft, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit, LogOut, Package, MessageSquare, Phone, Mail, Eye, X, ArrowLeft, Loader2, Tags } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import './Admin.css';
 
 // Add Authorization header to all requests if token exists in localStorage
 axios.interceptors.request.use(
@@ -50,6 +51,16 @@ const Admin = () => {
   const [copiedField, setCopiedField] = useState(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', slug: '' });
+  const [categoryImageFile, setCategoryImageFile] = useState(null);
+  const [categoryPreviewUrl, setCategoryPreviewUrl] = useState(null);
+  const [isCompressingCategory, setIsCompressingCategory] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [isCategoryDeleteModalOpen, setIsCategoryDeleteModalOpen] = useState(false);
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [tableCategory, setTableCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,13 +86,13 @@ const Admin = () => {
 
   // Prevent background scroll when modals are open
   useEffect(() => {
-    if (isModalOpen || selectedInquiry || isDeleteModalOpen) {
+    if (isModalOpen || selectedInquiry || isDeleteModalOpen || isCategoryModalOpen || isCategoryDeleteModalOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [isModalOpen, selectedInquiry, isDeleteModalOpen]);
+  }, [isModalOpen, selectedInquiry, isDeleteModalOpen, isCategoryModalOpen, isCategoryDeleteModalOpen]);
 
   const fetchProducts = async () => {
     setIsLoadingProducts(true);
@@ -118,8 +129,144 @@ const Admin = () => {
   };
 
   const fetchCategories = async () => {
-    const res = await axios.get(`${import.meta.env.VITE_API_URL}/categories`);
-    setCategories(res.data);
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/categories`);
+      setCategories(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Error fetching categories', err);
+      setCategories([]);
+    }
+  };
+
+  const closeCategoryModal = () => {
+    setIsCategoryModalOpen(false);
+    setEditingCategory(null);
+    setCategoryForm({ name: '', description: '', slug: '' });
+    setCategoryImageFile(null);
+    if (categoryPreviewUrl && categoryPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(categoryPreviewUrl);
+    }
+    setCategoryPreviewUrl(null);
+  };
+
+  const openCreateCategoryModal = () => {
+    setEditingCategory(null);
+    setCategoryForm({ name: '', description: '', slug: '' });
+    setCategoryImageFile(null);
+    if (categoryPreviewUrl && categoryPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(categoryPreviewUrl);
+    }
+    setCategoryPreviewUrl(null);
+    setIsCategoryModalOpen(true);
+  };
+
+  const openEditCategoryModal = (category) => {
+    setEditingCategory(category);
+    setCategoryForm({
+      name: category.name || '',
+      description: category.description || '',
+      slug: category.slug || '',
+    });
+    setCategoryImageFile(null);
+    if (categoryPreviewUrl && categoryPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(categoryPreviewUrl);
+    }
+    setCategoryPreviewUrl(
+      category.image_url ? `${import.meta.env.VITE_BASE_URL}${category.image_url}` : null
+    );
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleCategoryImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (categoryPreviewUrl && categoryPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(categoryPreviewUrl);
+    }
+
+    setIsCompressingCategory(true);
+    try {
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+      });
+      setCategoryImageFile(compressedFile);
+      setCategoryPreviewUrl(URL.createObjectURL(compressedFile));
+    } catch (error) {
+      console.error('Compression error:', error);
+      setCategoryImageFile(file);
+      setCategoryPreviewUrl(URL.createObjectURL(file));
+    } finally {
+      setIsCompressingCategory(false);
+    }
+  };
+
+  const handleRemoveCategoryImage = () => {
+    if (categoryPreviewUrl && categoryPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(categoryPreviewUrl);
+    }
+    setCategoryImageFile(null);
+    setCategoryPreviewUrl(null);
+  };
+
+  const handleSubmitCategory = async (e) => {
+    e.preventDefault();
+    setIsSavingCategory(true);
+    const formData = new FormData();
+    formData.append('name', categoryForm.name);
+    formData.append('description', categoryForm.description || '');
+    if (categoryForm.slug.trim()) {
+      formData.append('slug', categoryForm.slug.trim());
+    }
+    if (categoryImageFile) {
+      formData.append('image', categoryImageFile);
+    }
+
+    try {
+      if (editingCategory) {
+        formData.append('_method', 'PUT');
+        await axios.post(`${import.meta.env.VITE_API_URL}/categories/${editingCategory.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        await axios.post(`${import.meta.env.VITE_API_URL}/categories`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+      await fetchCategories();
+      closeCategoryModal();
+    } catch (err) {
+      const message = err.response?.data?.message
+        || (err.response?.data?.errors && Object.values(err.response.data.errors).flat().join('\n'))
+        || 'Error saving category';
+      alert(message);
+    } finally {
+      setIsSavingCategory(false);
+    }
+  };
+
+  const openDeleteCategoryModal = (category) => {
+    setCategoryToDelete(category);
+    setIsCategoryDeleteModalOpen(true);
+  };
+
+  const handleDeleteCategory = async () => {
+    if (!categoryToDelete) return;
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/categories/${categoryToDelete.id}`);
+      await fetchCategories();
+      if (String(tableCategory) === String(categoryToDelete.id)) {
+        setTableCategory('all');
+        setCurrentPage(1);
+      }
+      setIsCategoryDeleteModalOpen(false);
+      setCategoryToDelete(null);
+    } catch (err) {
+      const message = err.response?.data?.message || 'Error deleting category';
+      alert(message);
+    }
   };
 
   const handleLogin = async (e) => {
@@ -275,29 +422,37 @@ const Admin = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="container page-offset" style={{ maxWidth: '400px' }}>
-        <div className="glass" style={{ padding: '2.5rem' }}>
-          <h2 style={{ marginBottom: '2rem', textAlign: 'center' }}>Admin Login</h2>
+      <div className="admin-login-page">
+        <div className="admin-login-card">
+          <span className="admin-login-brand">Kelon Formulation</span>
+          <h1>Admin Console</h1>
+          <p>Sign in to manage inventory, categories, and client inquiries.</p>
           <form onSubmit={handleLogin}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Username</label>
+            <div className="admin-field">
+              <label htmlFor="admin-username">Username</label>
               <input
+                id="admin-username"
+                className="admin-input"
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                style={{ width: '100%', padding: '0.8rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }}
+                autoComplete="username"
+                required
               />
             </div>
-            <div style={{ marginBottom: '2rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Password</label>
+            <div className="admin-field">
+              <label htmlFor="admin-password">Password</label>
               <input
+                id="admin-password"
+                className="admin-input"
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                style={{ width: '100%', padding: '0.8rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)' }}
+                autoComplete="current-password"
+                required
               />
             </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>Login</button>
+            <button type="submit" className="btn-primary admin-login-submit">Sign In</button>
           </form>
         </div>
       </div>
@@ -305,133 +460,148 @@ const Admin = () => {
   }
 
   return (
-    <div className="container page-offset" style={{ paddingBottom: '6rem' }}>
-      <div className="glass admin-header" style={{ padding: '2rem', marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-        <div>
-          <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '2px', marginBottom: '0.5rem' }}>Management Console</h4>
-          <h1 className="responsive-section-title">Admin Dashboard</h1>
+    <div className="admin-page">
+      <div className="admin-shell">
+        <header className="admin-header">
+          <div className="admin-header-copy">
+            <span className="admin-kicker">Management Console</span>
+            <h1>Admin Dashboard</h1>
+          </div>
+          <div className="admin-header-actions">
+            <button
+              type="button"
+              className="admin-signout"
+              onClick={() => { localStorage.removeItem('token'); setIsLoggedIn(false); }}
+            >
+              <LogOut size={16} /> Sign Out
+            </button>
+          </div>
+        </header>
+
+        <div className="admin-stats">
+          <div className="admin-stat">
+            <span className="admin-stat-value">{totalProducts}</span>
+            <span className="admin-stat-label">Products</span>
+          </div>
+          <div className="admin-stat">
+            <span className="admin-stat-value">{categories.length}</span>
+            <span className="admin-stat-label">Categories</span>
+          </div>
+          <div className="admin-stat">
+            <span className="admin-stat-value">{totalInquiries}</span>
+            <span className="admin-stat-label">Inquiries</span>
+          </div>
         </div>
-        <button onClick={() => { localStorage.removeItem('token'); setIsLoggedIn(false); }} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#EF4444', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, transition: '0.3s' }}>
-          <LogOut size={18} /> Sign Out
-        </button>
-      </div>
 
-      <div className="admin-tabs">
-        <button
-          onClick={() => setActiveTab('products')}
-          className={`admin-tab ${activeTab === 'products' ? 'active' : ''}`}
-        >
-          <Package size={20} /> Inventory
-        </button>
-        <button
-          onClick={() => setActiveTab('inquiries')}
-          className={`admin-tab ${activeTab === 'inquiries' ? 'active' : ''}`}
-        >
-          <MessageSquare size={20} /> Client Inquiries
-        </button>
-      </div>
+        <nav className="admin-tabs" aria-label="Admin sections">
+          <button
+            type="button"
+            onClick={() => setActiveTab('products')}
+            className={`admin-tab ${activeTab === 'products' ? 'active' : ''}`}
+          >
+            <Package size={18} /> Inventory
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('categories')}
+            className={`admin-tab ${activeTab === 'categories' ? 'active' : ''}`}
+          >
+            <Tags size={18} /> Categories
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('inquiries')}
+            className={`admin-tab ${activeTab === 'inquiries' ? 'active' : ''}`}
+          >
+            <MessageSquare size={18} /> Inquiries
+          </button>
+        </nav>
 
-      {activeTab === 'products' ? (
-        <div className="glass" style={{ padding: '2rem' }}>
-          <div className="admin-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <h3 className="subsection-title" style={{ fontSize: '1.35rem' }}>Active Inventory</h3>
-            <div className="admin-toolbar-actions" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', width: '100%', maxWidth: '600px' }}>
+      {activeTab === 'products' && (
+        <div className="admin-panel">
+          <div className="admin-toolbar">
+            <h3>Active Inventory</h3>
+            <div className="admin-toolbar-actions">
               <input
+                className="admin-input"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                style={{ padding: '0.6rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)', flex: 1, minWidth: '200px' }}
               />
               <select
+                className="admin-select"
                 value={tableCategory}
                 onChange={e => { setTableCategory(e.target.value); setCurrentPage(1); }}
-                style={{
-                  padding: '0.6rem 2.5rem 0.6rem 1rem',
-                  background: 'var(--input-bg)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  color: 'var(--text-main)',
-                  cursor: 'pointer',
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235c6f58' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 10px center',
-                  minWidth: '150px',
-                  flex: 1,
-                  outline: 'none'
-                }}
               >
-                <option value="all" style={{ background: 'var(--bg-alt)', color: 'var(--text-main)' }}>All Categories</option>
+                <option value="all">All Categories</option>
                 {categories.map(cat => (
-                  <option key={cat.id} value={cat.id} style={{ background: 'var(--bg-alt)', color: 'var(--text-main)' }}>
-                    {cat.name}
-                  </option>
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
-              <button onClick={() => setIsModalOpen(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                <Plus size={20} /> Add Product
+              <button type="button" onClick={() => setIsModalOpen(true)} className="btn-primary admin-btn-row">
+                <Plus size={18} /> Add Product
               </button>
             </div>
           </div>
 
-          <div className="table-scroll" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
               <thead>
-                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--primary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>
-                  <th style={{ padding: '1rem' }}>Image</th>
-                  <th style={{ padding: '1rem' }}>Name</th>
-                  <th style={{ padding: '1rem' }}>Category</th>
-                  <th style={{ padding: '1rem' }}>Shelf Life</th>
-                  <th style={{ padding: '1rem' }}>Actions</th>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Shelf Life</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoadingProducts ? (
                   <tr>
-                    <td colSpan="5" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                        <Loader2 className="animate-spin" size={32} color="var(--primary)" />
-                        <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Fetching Inventory...</span>
+                    <td colSpan="5">
+                      <div className="admin-loading">
+                        <Loader2 className="animate-spin" size={28} color="var(--cta)" />
+                        <span>Fetching inventory…</span>
                       </div>
                     </td>
                   </tr>
                 ) : products.length > 0 ? (
                   products.map(p => (
-                    <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '1.2rem 1rem' }}>
+                    <tr key={p.id}>
+                      <td>
                         {p.image_url ? (
-                          <div style={{ width: '50px', height: '50px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                          <div className="admin-thumb">
                             <img
                               src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
                               alt={p.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                               onError={(e) => { e.target.style.display = 'none'; }}
                             />
                           </div>
                         ) : (
-                          <div style={{ width: '50px', height: '50px', borderRadius: '8px', background: 'var(--input-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Package size={20} color="var(--text-muted)" opacity={0.3} />
+                          <div className="admin-thumb">
+                            <Package size={18} color="var(--text-muted)" opacity={0.35} />
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '1.2rem 1rem', fontWeight: 500 }}>{p.name}</td>
-                      <td style={{ padding: '1.2rem 1rem', color: 'var(--text-muted)' }}>{p.category_name}</td>
-                      <td style={{ padding: '1.2rem 1rem' }}>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 500 }}>{p.shelf_life || '24 Months'}</span>
-                      </td>
-                      <td style={{ padding: '1.2rem 1rem' }}>
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                          <Edit onClick={() => openEditModal(p)} size={16} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} />
-                          <Trash2 onClick={() => openDeleteModal(p)} size={16} style={{ cursor: 'pointer', color: '#EF4444' }} />
+                      <td className="admin-cell-strong">{p.name}</td>
+                      <td className="admin-cell-muted">{p.category_name}</td>
+                      <td>{p.shelf_life || '24 Months'}</td>
+                      <td>
+                        <div className="admin-actions">
+                          <button type="button" className="admin-icon-btn" onClick={() => openEditModal(p)} title="Edit">
+                            <Edit size={15} />
+                          </button>
+                          <button type="button" className="admin-icon-btn admin-icon-btn--danger" onClick={() => openDeleteModal(p)} title="Delete">
+                            <Trash2 size={15} />
+                          </button>
                         </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" style={{ padding: '4rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                      No formulations found in this category.
+                    <td colSpan="5">
+                      <div className="admin-empty">No formulations found in this category.</div>
                     </td>
                   </tr>
                 )}
@@ -439,93 +609,141 @@ const Admin = () => {
             </table>
           </div>
 
-          {/* Pagination Controls */}
-          <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '2rem' }}>
+          <div className="admin-pagination">
             {Array.from({ length: Math.ceil(totalProducts / itemsPerPage) }, (_, i) => (
               <button
                 key={i + 1}
+                type="button"
                 onClick={() => setCurrentPage(i + 1)}
-                style={{
-                  width: '35px',
-                  height: '35px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--border)',
-                  background: currentPage === i + 1 ? 'var(--primary)' : 'transparent',
-                  color: currentPage === i + 1 ? 'white' : 'var(--text-muted)',
-                  cursor: 'pointer',
-                  transition: '0.3s'
-                }}
+                className={`admin-page-btn ${currentPage === i + 1 ? 'is-active' : ''}`}
               >
                 {i + 1}
               </button>
             ))}
           </div>
         </div>
-      ) : (
-        <div className="glass" style={{ padding: '2rem' }}>
-          <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Recent Client Inquiries</h3>
+      )}
+
+      {activeTab === 'categories' && (
+        <div className="admin-panel">
+          <div className="admin-toolbar">
+            <h3>Product Categories</h3>
+            <button type="button" onClick={openCreateCategoryModal} className="btn-primary admin-btn-row">
+              <Plus size={18} /> Add Category
+            </button>
+          </div>
+
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Slug</th>
+                  <th>Products</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categories.length > 0 ? (
+                  categories.map(cat => (
+                    <tr key={cat.id}>
+                      <td>
+                        {cat.image_url ? (
+                          <div className="admin-thumb">
+                            <img
+                              src={`${import.meta.env.VITE_BASE_URL}${cat.image_url}`}
+                              alt={cat.name}
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="admin-thumb">
+                            <Tags size={18} color="var(--text-muted)" opacity={0.35} />
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <div className="admin-cell-strong">{cat.name}</div>
+                        {cat.description && <div className="admin-cell-sub">{cat.description}</div>}
+                      </td>
+                      <td className="admin-slug">{cat.slug}</td>
+                      <td className="admin-cell-strong">{cat.products_count ?? 0}</td>
+                      <td>
+                        <div className="admin-actions">
+                          <button type="button" className="admin-icon-btn" onClick={() => openEditCategoryModal(cat)} title="Edit">
+                            <Edit size={15} />
+                          </button>
+                          <button type="button" className="admin-icon-btn admin-icon-btn--danger" onClick={() => openDeleteCategoryModal(cat)} title="Delete">
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">
+                      <div className="admin-empty">No categories yet. Create your first category to organize products.</div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'inquiries' && (
+        <div className="admin-panel">
+          <div className="admin-toolbar">
+            <h3>Client Inquiries</h3>
+          </div>
           {isLoadingInquiries ? (
-            <div style={{ textAlign: 'center', padding: '6rem', background: 'rgba(255,255,255,0.05)', borderRadius: '16px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
-                <div>
-                  <h4 style={{ color: 'var(--text-main)', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Loading Communications</h4>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Retrieving latest client inquiries...</p>
-                </div>
-              </div>
+            <div className="admin-loading-block">
+              <Loader2 className="animate-spin" size={36} color="var(--cta)" />
+              <h4>Loading communications</h4>
+              <p>Retrieving latest client inquiries…</p>
             </div>
           ) : inquiries.length > 0 ? (
             <>
-              <div className="table-scroll" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+              <div className="admin-table-wrap">
+                <table className="admin-table" style={{ minWidth: 800 }}>
                   <thead>
-                    <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--primary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>
-                      <th style={{ padding: '1rem' }}>Client</th>
-                      <th style={{ padding: '1rem' }}>Product Interest</th>
-                      <th style={{ padding: '1rem' }}>Message Snippet</th>
-                      <th style={{ padding: '1rem' }}>Contact</th>
-                      <th style={{ padding: '1rem' }}>Actions</th>
+                    <tr>
+                      <th>Client</th>
+                      <th>Interest</th>
+                      <th>Message</th>
+                      <th>Contact</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {inquiries.map(inq => (
                       <tr
                         key={inq.id}
+                        className="is-clickable"
                         onClick={() => setSelectedInquiry(inq)}
-                        style={{
-                          borderBottom: '1px solid var(--border)',
-                          cursor: 'pointer',
-                          transition: 'background 0.2s',
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-alt)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <td style={{ padding: '1.2rem 1rem' }}>
-                          <div style={{ fontWeight: 700 }}>{inq.name}</div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{inq.email}</div>
+                        <td>
+                          <div className="admin-cell-strong">{inq.name}</div>
+                          <div className="admin-cell-sub">{inq.email}</div>
                         </td>
-                        <td style={{ padding: '1.2rem 1rem' }}>
-                          <span style={{ padding: '0.2rem 0.5rem', background: 'var(--input-bg)', borderRadius: '4px', fontSize: '0.85rem' }}>
-                            {inq.product_name || 'General Inquiry'}
-                          </span>
+                        <td>
+                          <span className="admin-chip">{inq.product_name || 'General Inquiry'}</span>
                         </td>
-                        <td
-                          style={{ padding: '1.2rem 1rem', color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                          title="View full message"
-                        >
+                        <td className="admin-cell-muted" style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title="View full message">
                           {inq.message}
                         </td>
-                        <td style={{ padding: '1.2rem 1rem' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                            <Phone size={14} color="var(--primary)" /> {inq.phone}
-                          </div>
+                        <td>
+                          <span className="admin-contact-line">
+                            <Phone size={14} color="var(--cta)" /> {inq.phone}
+                          </span>
                         </td>
-                        <td style={{ padding: '1.2rem 1rem' }}>
-                          <Eye
-                            size={18}
-                            style={{ color: 'var(--primary)', cursor: 'pointer', opacity: 0.8 }}
-                            title="View Details"
-                          />
+                        <td>
+                          <button type="button" className="admin-icon-btn admin-icon-btn--view" title="View details" onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inq); }}>
+                            <Eye size={16} />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -533,22 +751,13 @@ const Admin = () => {
                 </table>
               </div>
 
-              {/* Inquiries Pagination */}
-              <div className="pagination-bar" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '2rem' }}>
+              <div className="admin-pagination">
                 {Array.from({ length: Math.ceil(totalInquiries / itemsPerPage) }, (_, i) => (
                   <button
                     key={i + 1}
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); setInquiryPage(i + 1); }}
-                    style={{
-                      width: '35px',
-                      height: '35px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--border)',
-                      background: inquiryPage === i + 1 ? 'var(--primary)' : 'transparent',
-                      color: inquiryPage === i + 1 ? 'white' : 'var(--text-muted)',
-                      cursor: 'pointer',
-                      transition: '0.3s'
-                    }}
+                    className={`admin-page-btn ${inquiryPage === i + 1 ? 'is-active' : ''}`}
                   >
                     {i + 1}
                   </button>
@@ -556,8 +765,8 @@ const Admin = () => {
               </div>
             </>
           ) : (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-              <MessageSquare size={48} opacity={0.1} style={{ marginBottom: '1rem' }} />
+            <div className="admin-empty">
+              <MessageSquare size={48} />
               <p>No client inquiries found at this time.</p>
             </div>
           )}
@@ -566,15 +775,15 @@ const Admin = () => {
 
       {/* Inquiry Details Modal */}
       {selectedInquiry && (
-        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(26, 46, 24, 0.45)', backdropFilter: 'blur(12px)', zIndex: 10000, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+        <div className="admin-modal-backdrop">
           <div className="inq-modal-panel">
             <div className="inq-header">
               <div className="inq-title-group">
                 <h4>Inquiry Insight</h4>
                 <h2>Communication Hub</h2>
               </div>
-              <button onClick={() => setSelectedInquiry(null)} className="inq-close-btn" title="Close Details">
-                <X size={28} />
+              <button type="button" onClick={() => setSelectedInquiry(null)} className="inq-close-btn" title="Close Details">
+                <X size={22} />
               </button>
             </div>
 
@@ -590,7 +799,7 @@ const Admin = () => {
                       <span className="contact-label">Primary Email</span>
                       <span className="contact-value">{selectedInquiry.email}</span>
                     </div>
-                    {copiedField === 'email' && <span style={{ fontSize: '0.65rem', color: 'var(--primary-cta)', marginLeft: 'auto', fontWeight: 900, background: 'rgba(0,200,83,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>COPIED</span>}
+                    {copiedField === 'email' && <span className="admin-chip">COPIED</span>}
                   </div>
 
                   <div className="contact-row" onClick={() => handleCopy(selectedInquiry.phone, 'phone')}>
@@ -599,7 +808,7 @@ const Admin = () => {
                       <span className="contact-label">Mobile Contact</span>
                       <span className="contact-value">{selectedInquiry.phone}</span>
                     </div>
-                    {copiedField === 'phone' && <span style={{ fontSize: '0.65rem', color: 'var(--primary-cta)', marginLeft: 'auto', fontWeight: 900, background: 'rgba(0,200,83,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>COPIED</span>}
+                    {copiedField === 'phone' && <span className="admin-chip">COPIED</span>}
                   </div>
                 </div>
 
@@ -607,7 +816,7 @@ const Admin = () => {
                   <h4 className="inq-label">Project Interest</h4>
                   <div className="interest-content">
                     <div className="interest-icon-box">
-                      <Package size={42} color="var(--primary)" />
+                      <Package size={42} color="var(--cta)" />
                     </div>
                     <div className="interest-text">
                       <h3>{selectedInquiry.product_name || 'General Inquiry'}</h3>
@@ -628,6 +837,7 @@ const Admin = () => {
 
               <div className="inq-modal-footer">
                 <button
+                  type="button"
                   onClick={() => setSelectedInquiry(null)}
                   className="btn-premium-close"
                 >
@@ -639,205 +849,126 @@ const Admin = () => {
         </div>
       )}
 
-
       {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--bg)', zIndex: 10000, overflowY: 'auto', padding: '4rem 1rem' }}>
-          <div className="container modal-fullscreen-inner" style={{ maxWidth: '1000px' }}>
-            <button
-              onClick={closeModal}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.6rem',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                marginBottom: '2rem',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                padding: '0'
-              }}
-            >
-              <ArrowLeft size={20} /> BACK TO INVENTORY
+        <div className="admin-editor">
+          <div className="admin-editor-inner">
+            <button type="button" onClick={closeModal} className="admin-back">
+              <ArrowLeft size={18} /> Back to inventory
             </button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem', borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
-              <div>
-                <h4 style={{ color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '3px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>Management Console</h4>
-                <h2 style={{ fontSize: '2.8rem', fontWeight: 800 }}>{editingProduct ? 'Edit Formulation' : 'Create New Product'}</h2>
-              </div>
+            <div className="admin-editor-header">
+              <span className="admin-kicker">Management Console</span>
+              <h2>{editingProduct ? 'Edit Formulation' : 'Create New Product'}</h2>
             </div>
 
             <form onSubmit={handleSubmitProduct}>
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Product Name</label>
-                  <input required value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="e.g. Premium Whey Protein" style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
+              <div className="admin-form-grid">
+                <div className="admin-field">
+                  <label>Product Name</label>
+                  <input required value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="e.g. Premium Whey Protein" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Category</label>
+                <div className="admin-field">
+                  <label>Category</label>
                   <select
                     required
                     value={newProduct.category_id}
                     onChange={e => setNewProduct({ ...newProduct, category_id: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '1rem 2.5rem 1rem 1rem',
-                      background: 'var(--input-bg)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '12px',
-                      color: 'var(--text-main)',
-                      fontSize: '1rem',
-                      appearance: 'none',
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235c6f58' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 15px center'
-                    }}
                   >
-                    <option value="" disabled style={{ background: '#ffffff' }}>Select Category</option>
-                    {categories.map(cat => <option key={cat.id} value={cat.id} style={{ background: '#ffffff' }}>{cat.name}</option>)}
+                    <option value="" disabled>Select Category</option>
+                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Full Description</label>
-                <textarea required rows={3} value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Describe the product use and advantages..." style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem', resize: 'none' }} />
+              <div className="admin-field">
+                <label>Full Description</label>
+                <textarea required rows={3} value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Describe the product use and advantages..." />
               </div>
 
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Key Benefits</label>
-                  <input value={newProduct.benefits} onChange={e => setNewProduct({ ...newProduct, benefits: e.target.value })} placeholder="Energy, Muscle Recovery, etc. (comma separated)" style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
+              <div className="admin-form-grid">
+                <div className="admin-field">
+                  <label>Key Benefits</label>
+                  <input value={newProduct.benefits} onChange={e => setNewProduct({ ...newProduct, benefits: e.target.value })} placeholder="Energy, Muscle Recovery, etc. (comma separated)" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Ingredients</label>
-                  <input value={newProduct.ingredients} onChange={e => setNewProduct({ ...newProduct, ingredients: e.target.value })} placeholder="e.g. 500mg Glutathione, 40mg Vitamin C" style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
-                </div>
-              </div>
-
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Flavours Available</label>
-                  <input value={newProduct.flavours} onChange={e => setNewProduct({ ...newProduct, flavours: e.target.value })} placeholder="Vanilla, Chocolate, Mango..." style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Packaging Material</label>
-                  <input value={newProduct.packing_material} onChange={e => setNewProduct({ ...newProduct, packing_material: e.target.value })} placeholder="Jar, Pouch, Tube..." style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
+                <div className="admin-field">
+                  <label>Active Ingredients</label>
+                  <input value={newProduct.ingredients} onChange={e => setNewProduct({ ...newProduct, ingredients: e.target.value })} placeholder="e.g. 500mg Glutathione, 40mg Vitamin C" />
                 </div>
               </div>
 
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Packing Size</label>
-                  <input value={newProduct.packing_size} onChange={e => setNewProduct({ ...newProduct, packing_size: e.target.value })} placeholder="1kg, 2kg, 30 Tab..." style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
+              <div className="admin-form-grid">
+                <div className="admin-field">
+                  <label>Flavours Available</label>
+                  <input value={newProduct.flavours} onChange={e => setNewProduct({ ...newProduct, flavours: e.target.value })} placeholder="Vanilla, Chocolate, Mango..." />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Shelf Life</label>
-                  <input value={newProduct.shelf_life} onChange={e => setNewProduct({ ...newProduct, shelf_life: e.target.value })} placeholder="24 Months" style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>MOQ</label>
-                  <input value={newProduct.moq} onChange={e => setNewProduct({ ...newProduct, moq: e.target.value })} placeholder="500 Units" style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem' }} />
+                <div className="admin-field">
+                  <label>Packaging Material</label>
+                  <input value={newProduct.packing_material} onChange={e => setNewProduct({ ...newProduct, packing_material: e.target.value })} placeholder="Jar, Pouch, Tube..." />
                 </div>
               </div>
 
-              <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Product Formulas (One per line)</label>
-                <textarea 
-                  rows={5} 
-                  value={newProduct.formulas} 
-                  onChange={e => setNewProduct({ ...newProduct, formulas: e.target.value })} 
-                  placeholder="Glutathione 500 mg + Astaxanthin 4 mg + ...&#10;Grape Seed Extract 10 mg + Aloe Vera Extract 10 mg + ..." 
-                  style={{ width: '100%', padding: '1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', fontSize: '1rem', resize: 'vertical' }} 
+              <div className="admin-form-grid">
+                <div className="admin-field">
+                  <label>Packing Size</label>
+                  <input value={newProduct.packing_size} onChange={e => setNewProduct({ ...newProduct, packing_size: e.target.value })} placeholder="1kg, 2kg, 30 Tab..." />
+                </div>
+                <div className="admin-field">
+                  <label>Shelf Life</label>
+                  <input value={newProduct.shelf_life} onChange={e => setNewProduct({ ...newProduct, shelf_life: e.target.value })} placeholder="24 Months" />
+                </div>
+                <div className="admin-field admin-form-span">
+                  <label>MOQ</label>
+                  <input value={newProduct.moq} onChange={e => setNewProduct({ ...newProduct, moq: e.target.value })} placeholder="500 Units" />
+                </div>
+              </div>
+
+              <div className="admin-field">
+                <label>Product Formulas (One per line)</label>
+                <textarea
+                  rows={5}
+                  value={newProduct.formulas}
+                  onChange={e => setNewProduct({ ...newProduct, formulas: e.target.value })}
+                  placeholder={"Glutathione 500 mg + Astaxanthin 4 mg + ...\nGrape Seed Extract 10 mg + Aloe Vera Extract 10 mg + ..."}
                 />
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>Enter each formula on a new line to display them as a list on the product page.</p>
+                <p className="admin-cell-sub" style={{ whiteSpace: 'normal', maxWidth: 'none' }}>Enter each formula on a new line to display them as a list on the product page.</p>
               </div>
 
-              <div style={{ marginBottom: '3rem' }}>
-                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Product Imagery {editingProduct && '(Optional)'}</label>
-                <label
-                  htmlFor="file-upload"
-                  className="glass"
-                  style={{
-                    padding: '2rem',
-                    borderStyle: 'dashed',
-                    textAlign: 'center',
-                    borderColor: (imageFile || (editingProduct && previewUrl)) ? 'var(--primary)' : 'var(--border)',
-                    position: 'relative',
-                    minHeight: '200px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <input type="file" id="file-upload" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+              <div className="admin-field">
+                <label>Product Imagery {editingProduct && '(Optional)'}</label>
+                <label className="admin-upload">
+                  <input type="file" accept="image/*" onChange={handleImageChange} />
                   {isCompressing ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                      <Loader2 size={32} className="animate-spin" color="var(--primary)" />
-                      <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Optimizing Image...</span>
+                    <div className="admin-upload-placeholder">
+                      <Loader2 size={28} className="animate-spin" color="var(--cta)" />
+                      <span>Optimizing image…</span>
                     </div>
                   ) : previewUrl ? (
-                    <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
-                      <img
-                        src={previewUrl}
-                        alt="Preview"
-                        style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: 'var(--shadow-md)', transition: '0.3s' }}
-                        onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-                        onMouseLeave={(e) => e.target.style.opacity = '1'}
-                      />
-                      <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.5rem' }}>
-                        <button
-                          type="button"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveImage(); }}
-                          style={{
-                            background: '#EF4444',
-                            color: 'white',
-                            padding: '0.4rem',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                            border: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 10
-                          }}
-                          title="Remove Image"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
+                    <div className="admin-upload-preview">
+                      <img src={previewUrl} alt="Preview" />
+                      <button
+                        type="button"
+                        className="admin-upload-remove"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveImage(); }}
+                        title="Remove Image"
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                      <Plus size={32} color="var(--text-muted)" />
-                      <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Upload Product Mockup</span>
+                    <div className="admin-upload-placeholder">
+                      <Plus size={28} />
+                      <span>Upload product mockup</span>
                     </div>
                   )}
-                  {/* {imageFile && !isCompressing && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600 }}>
-                        Selected: {imageFile.name}
-                      </span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                        Optimized Size: {(imageFile.size / 1024).toFixed(1)} KB
-                      </span>
-                    </div>
-                  )} */}
                 </label>
               </div>
 
-              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-                <button type="submit" className="btn-primary" style={{ flex: 2, padding: '1.2rem', fontSize: '1.1rem', letterSpacing: '1px', minWidth: '200px' }}>
-                  {editingProduct ? 'UPDATE FORMULATION' : 'CREATE NEW PRODUCT'}
+              <div className="admin-form-actions">
+                <button type="submit" className="btn-primary">
+                  {editingProduct ? 'Update Formulation' : 'Create Product'}
                 </button>
-                <button type="button" onClick={closeModal} style={{ flex: 1, background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 700, minWidth: '150px', padding: '1rem' }}>
-                  CANCEL
+                <button type="button" onClick={closeModal} className="admin-btn-ghost">
+                  Cancel
                 </button>
               </div>
             </form>
@@ -847,32 +978,138 @@ const Admin = () => {
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(26, 46, 24, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '1rem' }}>
-          <div className="glass modal-panel" style={{ maxWidth: '400px', textAlign: 'center', padding: '2rem' }}>
-            <div style={{ color: '#EF4444', marginBottom: '1.5rem' }}>
-              <Trash2 size={48} />
+        <div className="admin-modal-backdrop">
+          <div className="admin-confirm">
+            <div className="admin-confirm-icon">
+              <Trash2 size={40} />
             </div>
-            <h2 style={{ marginBottom: '1rem' }}>Delete Product?</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            <h2>Delete Product?</h2>
+            <p>
               Are you sure you want to delete <strong>{productToDelete?.name || 'this product'}</strong>? This action cannot be undone.
             </p>
-            <div className="delete-modal-actions" style={{ display: 'flex', gap: '1rem' }}>
-              <button
-                onClick={handleDeleteProduct}
-                style={{ flex: 1, background: '#EF4444', border: 'none', borderRadius: '8px', color: 'white', padding: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
-              >
+            <div className="admin-confirm-actions">
+              <button type="button" onClick={handleDeleteProduct} className="admin-btn-danger">
                 Delete
               </button>
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                style={{ flex: 1, background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-main)', padding: '0.8rem', cursor: 'pointer' }}
-              >
+              <button type="button" onClick={() => setIsDeleteModalOpen(false)} className="admin-btn-ghost">
                 Cancel
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Add/Edit Category Modal */}
+      {isCategoryModalOpen && (
+        <div className="admin-editor">
+          <div className="admin-editor-inner admin-editor-inner--narrow">
+            <button type="button" onClick={closeCategoryModal} className="admin-back">
+              <ArrowLeft size={18} /> Back to categories
+            </button>
+            <div className="admin-editor-header">
+              <span className="admin-kicker">Management Console</span>
+              <h2>{editingCategory ? 'Edit Category' : 'Create Category'}</h2>
+            </div>
+
+            <form onSubmit={handleSubmitCategory}>
+              <div className="admin-field">
+                <label>Category Name</label>
+                <input
+                  required
+                  value={categoryForm.name}
+                  onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                  placeholder="e.g. Effervescent Tablets"
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Slug (optional)</label>
+                <input
+                  value={categoryForm.slug}
+                  onChange={e => setCategoryForm({ ...categoryForm, slug: e.target.value })}
+                  placeholder="Auto-generated from name if left blank"
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Description</label>
+                <textarea
+                  rows={4}
+                  value={categoryForm.description}
+                  onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                  placeholder="Short description shown on the catalog..."
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Category Image</label>
+                <label className="admin-upload">
+                  <input type="file" accept="image/*" onChange={handleCategoryImageChange} />
+                  {isCompressingCategory ? (
+                    <div className="admin-upload-placeholder">
+                      <Loader2 size={28} className="animate-spin" color="var(--cta)" />
+                      <span>Optimizing image…</span>
+                    </div>
+                  ) : categoryPreviewUrl ? (
+                    <div className="admin-upload-preview">
+                      <img src={categoryPreviewUrl} alt="Category preview" />
+                      <button
+                        type="button"
+                        className="admin-upload-remove"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveCategoryImage(); }}
+                        title="Remove Image"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="admin-upload-placeholder">
+                      <Plus size={28} />
+                      <span>Upload category image</span>
+                    </div>
+                  )}
+                </label>
+              </div>
+
+              <div className="admin-form-actions">
+                <button type="submit" className="btn-primary" disabled={isSavingCategory} style={{ opacity: isSavingCategory ? 0.7 : 1 }}>
+                  {isSavingCategory ? 'Saving…' : (editingCategory ? 'Update Category' : 'Create Category')}
+                </button>
+                <button type="button" onClick={closeCategoryModal} className="admin-btn-ghost">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Category Confirmation */}
+      {isCategoryDeleteModalOpen && (
+        <div className="admin-modal-backdrop">
+          <div className="admin-confirm">
+            <div className="admin-confirm-icon">
+              <Trash2 size={40} />
+            </div>
+            <h2>Delete Category?</h2>
+            <p>
+              Are you sure you want to delete <strong>{categoryToDelete?.name || 'this category'}</strong>?
+              {(categoryToDelete?.products_count ?? 0) > 0
+                ? ' Categories with products cannot be deleted until those products are moved or removed.'
+                : ' This action cannot be undone.'}
+            </p>
+            <div className="admin-confirm-actions">
+              <button type="button" onClick={handleDeleteCategory} className="admin-btn-danger">
+                Delete
+              </button>
+              <button type="button" onClick={() => { setIsCategoryDeleteModalOpen(false); setCategoryToDelete(null); }} className="admin-btn-ghost">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
     </div>
   );
 };

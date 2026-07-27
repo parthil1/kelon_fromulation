@@ -41,31 +41,6 @@ canvas {
 
 
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-  gap: 1.25rem;
-}
-
-.feature-card-tall {
-  min-height: 320px;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  padding: 2rem;
-}
-
-.category-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem 1rem;
-  margin-bottom: clamp(2.5rem, 6vw, 6rem);
-}
-
 .page-header {
   text-align: center;
   margin-bottom: clamp(2rem, 5vw, 5rem);
@@ -125,7 +100,7 @@ canvas {
 
   /* Tablet + mobile: 60px compact navbar */
   :root {
-    --nav-height: 63px; /* 60px bar + 3px bottom border */
+    --nav-height: 61px; /* 60px bar + 1px hairline border */
   }
 
   .mobile-menu-toggle {
@@ -229,12 +204,6 @@ canvas {
     box-sizing: border-box;
   }
 
-  .nav-links .nav-cta-item .magnetic-wrap {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-  }
-
   .nav-underline {
     bottom: 0.35rem;
     width: 2.5rem;
@@ -243,10 +212,6 @@ canvas {
 
   .nav-links.active {
     right: 0;
-  }
-
-  .legacy-intro {
-    margin-bottom: clamp(2.5rem, 6vw, 6rem) !important;
   }
 
   .hero-content h1 {
@@ -266,10 +231,6 @@ canvas {
   .glass,
   .glass-highlight {
     padding: 1.5rem !important;
-  }
-
-  .stat-card {
-    padding: 2rem 1.5rem !important;
   }
 
   .hero-slider {
@@ -316,13 +277,6 @@ canvas {
     text-align: center;
   }
 
-  .hero .text-label,
-  .hero-eyebrow {
-    font-size: 0.68rem;
-    letter-spacing: 0.18em !important;
-    padding: 0.45rem 0.9rem;
-  }
-
   .benefits-list {
     grid-template-columns: 1fr;
   }
@@ -359,7 +313,7 @@ canvas {
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
     margin-left: -0.5rem;
     margin-right: -0.5rem;
     padding-left: 0.5rem;
@@ -367,24 +321,14 @@ canvas {
     scrollbar-width: thin;
   }
 
-  .category-pill {
+  .category-filter-link {
     flex-shrink: 0;
     scroll-snap-align: start;
-    padding: 0.65rem 1.15rem;
-    font-size: 0.85rem;
+    font-size: 0.92rem;
   }
 
   .grid-form-2 {
     grid-template-columns: 1fr !important;
-  }
-
-  .feature-card-tall {
-    min-height: 280px;
-  }
-
-  .capability-card-image {
-    height: 200px !important;
-    margin-bottom: 1.25rem !important;
   }
 
   .empty-state {

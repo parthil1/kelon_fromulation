@@ -22,11 +22,13 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:categories,slug',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:2048',
         ]);
 
+        unset($validated['image']);
+
         if (!$request->filled('slug')) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $validated['slug'] = $this->uniqueSlug($validated['name']);
         }
 
         if ($request->hasFile('image')) {
@@ -35,6 +37,8 @@ class CategoryController extends Controller
         }
 
         $category = Category::create($validated);
+        $category->loadCount('products');
+
         return response()->json($category, 201);
     }
 
@@ -45,11 +49,13 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:categories,slug,' . $id,
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:2048',
         ]);
 
+        unset($validated['image']);
+
         if (!$request->filled('slug')) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $validated['slug'] = $this->uniqueSlug($validated['name'], $id);
         }
 
         if ($request->hasFile('image')) {
@@ -61,16 +67,45 @@ class CategoryController extends Controller
         }
 
         $category->update($validated);
+        $category->loadCount('products');
+
         return response()->json($category);
     }
 
     public function destroy($id)
     {
-        $category = Category::findOrFail($id);
+        $category = Category::withCount('products')->findOrFail($id);
+
+        if ($category->products_count > 0) {
+            return response()->json([
+                'message' => 'Cannot delete a category that still has products. Move or delete those products first.',
+            ], 422);
+        }
+
         if ($category->image_url && str_contains($category->image_url, '/storage/')) {
             Storage::disk('public')->delete(str_replace('/storage/', '', $category->image_url));
         }
+
         $category->delete();
+
         return response()->json(['message' => 'Category deleted successfully']);
+    }
+
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name) ?: 'category';
+        $slug = $base;
+        $i = 1;
+
+        while (
+            Category::where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $i;
+            $i++;
+        }
+
+        return $slug;
     }
 }
