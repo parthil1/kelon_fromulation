@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform, MotionConfig } from 'framer-motion';
-import { Menu, ShoppingBag, Phone, Mail, ChevronRight, ChevronDown, ShieldCheck, Factory, Package, Plus, FlaskConical, Send, Flag, Eye, CheckCircle2, ArrowUpRight, Check, FileText, Microscope, Truck, Sparkles, Layers, TrendingUp, Tag, Brain, HeartHandshake } from 'lucide-react';
+import { Menu, ShoppingBag, Phone, Mail, ChevronRight, ChevronDown, ShieldCheck, Factory, Package, Plus, FlaskConical, Send, Flag, Eye, CheckCircle2, ArrowUpRight, Check, FileText, Microscope, Truck, Sparkles, Layers, TrendingUp, Tag, Brain, HeartHandshake, Clock } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
 import { useSEO } from './hooks/useSEO';
@@ -780,20 +780,6 @@ const Footer = () => (
   >
     <div className="container">
       <div className="footer-grid">
-        <div className="footer-brand-group">
-          <Link
-            to="/"
-            className="footer-logo-link"
-            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-          >
-            <img src="/kelon-logo.svg" alt="Kelon Formulation" className="footer-logo" />
-          </Link>
-          <p className="footer-tagline">
-            Precision nutraceutical manufacturing for brands that refuse to compromise on quality.
-          </p>
-          <span className="footer-certification"><ShieldCheck size={15} /> WHO-GMP Certified</span>
-        </div>
-
         <div className="footer-links-group">
           <h4 className="footer-title">Explorer</h4>
           <ul className="footer-links-list">
@@ -1016,6 +1002,7 @@ const Products = () => {
             <Link key={p.id} to={`/product/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <motion.div className="product-card card-motion" variants={cardHoverLift} whileHover="hover">
                 <div className="product-image">
+                  {p.category_name && <span className="product-card-badge">{p.category_name}</span>}
                   {p.image_url ? (
                     <img
                       src={`${import.meta.env.VITE_BASE_URL}${p.image_url}`}
@@ -1031,7 +1018,7 @@ const Products = () => {
                 <div className="product-info">
                   <h3>{p.name}</h3>
                   <p>{p.description}</p>
-                  <div className="product-link">Specs <ChevronRight size={18} /></div>
+                  <div className="product-link">Specifications <ChevronRight size={16} /></div>
                 </div>
               </motion.div>
             </Link>
@@ -1098,7 +1085,15 @@ const ProductDetail = () => {
       </div>
     </div>
   );
-  if (!product) return <div className="container page-offset" style={{ textAlign: 'center' }}><div className="glass" style={{ padding: '5rem', maxWidth: '600px', margin: '0 auto' }}><Package size={80} opacity={0.3} color="#ef4444" /><h1 style={{ marginTop: '2rem' }}>Entry Not Found</h1><Link to="/products" className="btn-primary" style={{ marginTop: '2rem' }}>Back to Catalog</Link></div></div>;
+  if (!product) return (
+    <div className="container page-offset" style={{ textAlign: 'center' }}>
+      <div className="glass" style={{ padding: '5rem', maxWidth: '600px', margin: '0 auto' }}>
+        <Package size={80} opacity={0.3} color="#ef4444" />
+        <h1 style={{ marginTop: '2rem' }}>Entry Not Found</h1>
+        <Link to="/products" className="btn-primary" style={{ marginTop: '2rem' }}>Back to Catalog</Link>
+      </div>
+    </div>
+  );
 
   return (
     <motion.div
@@ -1107,7 +1102,9 @@ const ProductDetail = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Link to="/products" className="back-to-catalog"><ChevronRight style={{ transform: 'rotate(180deg)' }} size={20} /> Back to Catalog</Link>
+      <Link to="/products" className="back-to-catalog-btn">
+        <ChevronRight style={{ transform: 'rotate(180deg)' }} size={18} /> Back to Catalog
+      </Link>
 
       <div className="product-detail-grid">
         <motion.div
@@ -1120,13 +1117,14 @@ const ProductDetail = () => {
               <img
                 src={`${import.meta.env.VITE_BASE_URL}${product.image_url}`}
                 alt={product.name}
+                className="detail-product-img"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E";
-                  e.target.style.opacity = '0.1';
+                  e.target.style.opacity = '0.15';
                 }}
               />
-            ) : <ShoppingBag size={140} opacity={0.1} />}
+            ) : <ShoppingBag size={140} opacity={0.15} />}
           </div>
         </motion.div>
 
@@ -1135,57 +1133,87 @@ const ProductDetail = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
         >
-          <h4 className="text-label" style={{ fontSize: '0.75rem', marginBottom: '1rem' }}>{product.category_name} Formulation</h4>
-          <h1 className="responsive-h1-large">{product.name}</h1>
-          <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: '1.8' }}>{product.description}</p>
+          <div className="category-pill-badge">
+            <Tag size={13} /> {product.category_name || 'Nutraceutical'} Formulation
+          </div>
+          <h1 className="product-detail-title">{product.name}</h1>
+          <p className="product-detail-desc">{product.description}</p>
 
           {product.benefits && (
-            <div className="benefits-box">
-              <h3 className="text-label" style={{ fontSize: '1rem', marginBottom: '1.25rem' }}>Core Health Benefits</h3>
-              <ul className="benefits-list">
-                {product.benefits.split(',').map((b, i) => <li key={i}><div className="dot"></div>{b.trim()}</li>)}
-              </ul>
+            <div className="benefits-card-container">
+              <div className="benefits-header">
+                <h3>Core Health Benefits</h3>
+              </div>
+              <div className="benefits-grid">
+                {product.benefits.split(',').map((b, i) => (
+                  <div key={i} className="benefit-item">
+                    <div className="benefit-check-icon"><Check size={14} /></div>
+                    <span>{b.trim()}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          <dl className="specs-table">
-            <div className="specs-table-row">
-              <dt className="spec-label">Ingredients</dt>
-              <dd className="spec-val">{product.ingredients || 'Proprietary Blend'}</dd>
+          <div className="specs-section">
+            <h3 className="specs-title">Technical Specifications</h3>
+            <div className="specs-grid-cards">
+              <div className="spec-card">
+                <div className="spec-card-icon"><FlaskConical size={18} /></div>
+                <div className="spec-card-content">
+                  <span className="spec-card-label">Ingredients</span>
+                  <span className="spec-card-value">{product.ingredients || 'Proprietary Blend'}</span>
+                </div>
+              </div>
+              <div className="spec-card">
+                <div className="spec-card-icon"><Sparkles size={18} /></div>
+                <div className="spec-card-content">
+                  <span className="spec-card-label">Flavors</span>
+                  <span className="spec-card-value">{product.flavours || 'Customizable'}</span>
+                </div>
+              </div>
+              <div className="spec-card">
+                <div className="spec-card-icon"><Clock size={18} /></div>
+                <div className="spec-card-content">
+                  <span className="spec-card-label">Shelf Life</span>
+                  <span className="spec-card-value">{product.shelf_life || '24 Months'}</span>
+                </div>
+              </div>
+              <div className="spec-card">
+                <div className="spec-card-icon"><Layers size={18} /></div>
+                <div className="spec-card-content">
+                  <span className="spec-card-label">Minimum Order (MOQ)</span>
+                  <span className="spec-card-value">{product.moq || 'Contact Sales'}</span>
+                </div>
+              </div>
+              <div className="spec-card">
+                <div className="spec-card-icon"><Package size={18} /></div>
+                <div className="spec-card-content">
+                  <span className="spec-card-label">Packaging Format</span>
+                  <span className="spec-card-value">{product.packing_material || 'Advanced Pharma Grade'}</span>
+                </div>
+              </div>
+              <div className="spec-card">
+                <div className="spec-card-icon"><ShieldCheck size={18} /></div>
+                <div className="spec-card-content">
+                  <span className="spec-card-label">Certifications</span>
+                  <span className="spec-card-value">WHO-GMP, HACCP, FSSAI</span>
+                </div>
+              </div>
             </div>
-            <div className="specs-table-row">
-              <dt className="spec-label">Flavors</dt>
-              <dd className="spec-val">{product.flavours || 'Customizable'}</dd>
-            </div>
-            <div className="specs-table-row">
-              <dt className="spec-label">Shelf Life</dt>
-              <dd className="spec-val">{product.shelf_life || '24 Months'}</dd>
-            </div>
-            <div className="specs-table-row">
-              <dt className="spec-label">MOQ</dt>
-              <dd className="spec-val">{product.moq || 'Contact Sales'}</dd>
-            </div>
-            <div className="specs-table-row">
-              <dt className="spec-label">Packaging</dt>
-              <dd className="spec-val">{product.packing_material || 'Advanced Pharma'}</dd>
-            </div>
-            <div className="specs-table-row">
-              <dt className="spec-label">Certifications</dt>
-              <dd className="spec-val">WHO-GMP, HACCP, FSSAI</dd>
-            </div>
-          </dl>
+          </div>
 
           {product.formulas && (
-            <div className="formulas-section" style={{ marginTop: '2rem' }}>
-              <h3 className="text-label" style={{ fontSize: '1rem', marginBottom: '0.8rem' }}>Available Formulations</h3>
-              <div className="formulas-list">
+            <div className="formulas-section">
+              <h3 className="formulas-title">Available Formulations</h3>
+              <div className="formulas-grid">
                 {product.formulas.split('\n').filter(f => f.trim()).map((formula, i) => (
-                  <ScrollReveal key={i} className="formula-card" delay={i * 0.08}>
-                    <div className="formula-content">
+                  <ScrollReveal key={i} className="formula-card-pill" delay={i * 0.05}>
+                    <div className="formula-content-badge">
                       {formula.split('+').map((ingredient, j) => (
-                        <span key={j} className="formula-ingredient">
+                        <span key={j} className="formula-ingredient-tag">
                           {ingredient.trim()}
-                          {j < formula.split('+').length - 1 && <span className="formula-plus">+</span>}
+                          {j < formula.split('+').length - 1 && <span className="formula-plus-icon">+</span>}
                         </span>
                       ))}
                     </div>
@@ -1197,20 +1225,68 @@ const ProductDetail = () => {
         </motion.div>
       </div>
 
-      <ScrollReveal className="glass detail-inquiry-panel">
-        <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem', fontWeight: 700 }}>Quick Inquiry</h3>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '1.75rem', fontSize: '0.95rem' }}>Ask about MOQ, lead times, or custom formulation for {product.name}.</p>
-        <form onSubmit={handleInquirySubmit} className="detail-inquiry-form">
-          <input required placeholder="Your Name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="form-input" />
-          <input required type="email" placeholder="Business Email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="form-input" />
-          <input required placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="form-input" />
-          <textarea placeholder="Message" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} rows={3} className="form-input" style={{ resize: 'none' }} />
-          <motion.button type="submit" className="btn-primary" disabled={status === 'sending'} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-            {status === 'sending' ? 'SENDING...' : 'ENQUIRE NOW'}
-          </motion.button>
-          {status === 'success' && <p style={{ color: 'var(--primary)', fontSize: '0.85rem', textAlign: 'center' }}>Sent successfully!</p>}
-          {status === 'error' && <p style={{ color: '#ef4444', fontSize: '0.85rem', textAlign: 'center' }}>Error sending message.</p>}
-        </form>
+      <ScrollReveal className="detail-trust-bar">
+        <div className="trust-item">
+          <ShieldCheck size={26} className="trust-icon" />
+          <div>
+            <h4>WHO-GMP & ISO</h4>
+            <p>Sterile Facility Standards</p>
+          </div>
+        </div>
+        <div className="trust-item">
+          <FlaskConical size={26} className="trust-icon" />
+          <div>
+            <h4>In-House R&D</h4>
+            <p>Custom Formulations</p>
+          </div>
+        </div>
+        <div className="trust-item">
+          <Tag size={26} className="trust-icon" />
+          <div>
+            <h4>Private Labeling</h4>
+            <p>Turnkey White-Labeling</p>
+          </div>
+        </div>
+        <div className="trust-item">
+          <Truck size={26} className="trust-icon" />
+          <div>
+            <h4>Scalable MOQs</h4>
+            <p>Rapid Turnaround</p>
+          </div>
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal className="detail-inquiry-container">
+        <div className="inquiry-card-glass">
+          <div className="inquiry-header-group">
+            <div className="inquiry-icon-badge"><Send size={22} /></div>
+            <div>
+              <h2>Request Specification & Quote</h2>
+              <p>Inquire about minimum order quantities, custom ingredient ratios, or sample batches for <strong>{product.name}</strong>.</p>
+            </div>
+          </div>
+          <form onSubmit={handleInquirySubmit} className="detail-inquiry-grid">
+            <div className="inquiry-field-group">
+              <input required placeholder="Full Name *" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="form-input inquiry-input" />
+            </div>
+            <div className="inquiry-field-group">
+              <input required type="email" placeholder="Business Email *" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="form-input inquiry-input" />
+            </div>
+            <div className="inquiry-field-group">
+              <input required placeholder="Phone / WhatsApp *" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="form-input inquiry-input" />
+            </div>
+            <div className="inquiry-field-group full-width">
+              <textarea placeholder="Project Details (Batch size, custom packaging, target timeline...)" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} rows={3} className="form-input inquiry-input" style={{ resize: 'none' }} />
+            </div>
+            <div className="inquiry-submit-row full-width">
+              <motion.button type="submit" className="btn-primary btn-inquiry-submit" disabled={status === 'sending'} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+                {status === 'sending' ? 'Transmitting Request...' : <>Submit Commercial Inquiry <Send size={16} /></>}
+              </motion.button>
+            </div>
+            {status === 'success' && <p className="inquiry-status-msg success"><CheckCircle2 size={16} /> Inquiry submitted successfully! Our technical team will reach out within 24 hours.</p>}
+            {status === 'error' && <p className="inquiry-status-msg error">Failed to send message. Please check details or contact us directly.</p>}
+          </form>
+        </div>
       </ScrollReveal>
     </motion.div>
   );
