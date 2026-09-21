@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform, MotionConfig } from 'framer-motion';
-import { Menu, ShoppingBag, Phone, Mail, ChevronRight, ShieldCheck, Factory, Package, Plus, FlaskConical, Send, Flag, Eye, CheckCircle2, ArrowUpRight, Check } from 'lucide-react';
+import { Menu, ShoppingBag, Phone, Mail, ChevronRight, ChevronDown, ShieldCheck, Factory, Package, Plus, FlaskConical, Send, Flag, Eye, CheckCircle2, ArrowUpRight, Check, FileText, Microscope, Truck, Sparkles, Layers, TrendingUp, Tag, Brain, HeartHandshake } from 'lucide-react';
 import axios from 'axios';
 import Admin from './pages/Admin';
 import { useSEO } from './hooks/useSEO';
@@ -34,7 +34,7 @@ const Navbar = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
       if (location.pathname === '/') {
-        const sections = ['home', 'about', 'contact'];
+        const sections = ['home', 'services', 'capabilities', 'about', 'why-us', 'faq', 'contact'];
         const scrollPosition = window.scrollY + 250;
         for (const section of sections) {
           const element = document.getElementById(section);
@@ -116,6 +116,12 @@ const Navbar = () => {
               </a>
             </li>
             <li>
+              <a href="#services" onClick={(e) => handleNavClick(e, 'services')} className={`nav-link ${activeClass('services')}`}>
+                Services
+                {activeClass('services') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
+              </a>
+            </li>
+            <li>
               <NavLink to="/products" onClick={() => setIsMenuOpen(false)} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
                 {({ isActive }) => (
                   <>
@@ -129,6 +135,12 @@ const Navbar = () => {
               <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className={`nav-link ${activeClass('about')}`}>
                 About Us
                 {activeClass('about') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
+              </a>
+            </li>
+            <li>
+              <a href="#faq" onClick={(e) => handleNavClick(e, 'faq')} className={`nav-link ${activeClass('faq')}`}>
+                FAQ
+                {activeClass('faq') && <NavUnderline prefersReducedMotion={prefersReducedMotion} />}
               </a>
             </li>
             <li>
@@ -278,6 +290,73 @@ const HeroSlider = () => {
   );
 };
 
+const ServicesGrid = () => {
+  const services = [
+    {
+      icon: <Factory size={28} />,
+      title: 'Contract Manufacturing',
+      desc: 'High-capacity, standardized supplement production in state-of-the-art facilities adhering strictly to WHO-GMP & ISO standards.',
+    },
+    {
+      icon: <FlaskConical size={28} />,
+      title: 'Formulation & Development',
+      desc: 'Expert R&D team creating bespoke formulations, active ingredient blends, taste profiling, and enhanced bioavailability.',
+    },
+    {
+      icon: <Package size={28} />,
+      title: 'Customised Packaging',
+      desc: 'Flexible and tailored packaging solutions including HDPE bottles, blister packs, foil sachets, tubes, and bulk containers.',
+    },
+    {
+      icon: <FileText size={28} />,
+      title: 'Regulatory Support',
+      desc: 'End-to-end guidance with FSSAI compliance, AYUSH registrations, product labeling rules, and Export/Import documentation.',
+    },
+    {
+      icon: <Microscope size={28} />,
+      title: 'NABL Quality Assurance',
+      desc: 'Multi-stage analytical testing covering active assay potency, microbial limits, heavy metal screening, and shelf-life stability.',
+    },
+    {
+      icon: <Truck size={28} />,
+      title: 'Supply Chain & Logistics',
+      desc: 'Streamlined raw material procurement, batch inventory buffer management, and reliable nationwide & global shipping.',
+    },
+  ];
+
+  return (
+    <section id="services" className="section-soft section-pad services-section">
+      <div className="container">
+        <ScrollReveal style={{ marginBottom: '3.5rem', textAlign: 'center' }}>
+          <h4 className="text-label" style={{ marginBottom: '0.75rem' }}>Our Core Services</h4>
+          <h2 className="responsive-section-title" style={{ maxWidth: '720px', margin: '0 auto' }}>
+            Leading Nutraceutical &amp; Dietary Supplement Manufacturer
+          </h2>
+          <p className="lead-text" style={{ color: 'var(--text-muted)', maxWidth: '680px', margin: '1rem auto 0' }}>
+            Comprehensive contract manufacturing solutions engineered for wellness brands requiring absolute purity, scale, and compliance.
+          </p>
+        </ScrollReveal>
+
+        <motion.div
+          className="services-grid"
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
+          {services.map((srv, i) => (
+            <motion.div key={i} className="service-card" variants={cardHoverLift} whileHover="hover">
+              <div className="service-icon-box">{srv.icon}</div>
+              <h3 className="service-title">{srv.title}</h3>
+              <p className="service-desc">{srv.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
 const Capabilities = () => (
   <section id="capabilities" className="section-soft section-pad capabilities-section">
     <div className="container">
@@ -353,9 +432,10 @@ const Certificates = () => {
 const About = () => {
   const infrastructure = ['Advanced R&D Lab', 'Strict Quality QC', 'Automated Packaging', 'Full Sterilization'];
   const pillars = [
-    { icon: <Flag size={22} />, title: 'Mission', desc: 'To advance global wellness by delivering the best-quality, most affordable supplement formulations at scale.' },
-    { icon: <Eye size={22} />, title: 'Vision', desc: 'To be the manufacturing partner of choice for brands that refuse to compromise on quality or innovation.' },
-    { icon: <FlaskConical size={22} />, title: 'Approach', desc: 'Science-led formulation, rigorous multi-stage testing, and certified production from first batch to full scale.' },
+    { icon: <Flag size={22} />, title: 'Mission', desc: 'To empower global health and wellness brands by delivering high-purity, scientifically formulated, and affordable nutraceutical products at scale.' },
+    { icon: <Eye size={22} />, title: 'Vision', desc: 'To be the global first-choice contract manufacturer, pioneering cutting-edge delivery formats and setting new benchmarks in quality and innovation.' },
+    { icon: <HeartHandshake size={22} />, title: 'Our Values', desc: 'No company can run their business alone. We build long-term partnerships rooted in transparency, unyielding quality control, scientific rigor, and client success.' },
+    { icon: <FlaskConical size={22} />, title: 'Approach', desc: 'Science-led formulation, multi-stage analytical testing, and seamless scale-up from pilot batch to high-volume production.' },
   ];
 
   return (
@@ -364,7 +444,7 @@ const About = () => {
         <div className="about-intro">
           <ScrollReveal>
             <h4 className="text-label" style={{ marginBottom: '1.2rem' }}>Who We Are</h4>
-            <h2 className="responsive-section-title" style={{ marginBottom: '1.5rem' }}>Science-first formulations, manufactured at scale</h2>
+            <h2 className="responsive-section-title" style={{ marginBottom: '1.5rem' }}>A Helping Hand to Manufacture Your Nutraceutical Products</h2>
             <p className="lead-text" style={{ color: 'var(--text-muted)' }}>
               Kelon Formulation is a leading third-party nutraceutical manufacturer, bridging complex science and consumer wellness through certified, high-precision production. Every formulation is developed, tested, and produced under one roof — safe, effective, and built to the standard your brand demands.
             </p>
@@ -401,6 +481,164 @@ const About = () => {
               </motion.div>
             ))}
           </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const WhyChooseUs = () => {
+  const highlights = [
+    {
+      icon: <ShieldCheck size={26} />,
+      title: 'WHO-GMP & ISO Certified',
+      desc: 'State-of-the-art sterile manufacturing facility operating under strict cleanroom conditions and international quality management protocols.',
+    },
+    {
+      icon: <Sparkles size={26} />,
+      title: '100% Quality & Potency',
+      desc: 'Every batch undergoes high-performance testing to guarantee exact ingredient potency, stability, and label accuracy.',
+    },
+    {
+      icon: <Layers size={26} />,
+      title: 'High Batch Consistency',
+      desc: 'Automated weight checks, moisture control, and precision blending ensure batch-to-batch uniformity across all production runs.',
+    },
+    {
+      icon: <TrendingUp size={26} />,
+      title: 'Scalable MOQs',
+      desc: 'Flexible batch sizing designed to support both growing market entrants and high-volume commercial brand distribution.',
+    },
+    {
+      icon: <Tag size={26} />,
+      title: 'Turnkey Private Labeling',
+      desc: 'Complete white-label solutions, from custom formula creation and artwork design to finished packaged products ready for retail.',
+    },
+    {
+      icon: <Brain size={26} />,
+      title: 'Dedicated R&D Support',
+      desc: 'In-house scientists and flavor specialists working collaboratively to craft distinct, market-winning formulations.',
+    },
+  ];
+
+  return (
+    <section id="why-us" className="why-choose-section section-pad">
+      <div className="container">
+        <ScrollReveal style={{ marginBottom: '3.5rem', textAlign: 'center' }}>
+          <h4 className="text-label" style={{ marginBottom: '0.75rem' }}>Why Choose Kelon Formulation</h4>
+          <h2 className="responsive-section-title" style={{ maxWidth: '700px', margin: '0 auto' }}>
+            Built for Brands That Refuse to Compromise
+          </h2>
+          <p className="lead-text" style={{ color: 'var(--text-muted)', maxWidth: '640px', margin: '1rem auto 0' }}>
+            Unrivaled precision, certified infrastructure, and dedicated partnership at every step of production.
+          </p>
+        </ScrollReveal>
+
+        <motion.div
+          className="why-grid"
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
+          {highlights.map((item, i) => (
+            <motion.div key={i} className="why-card" variants={cardHoverLift} whileHover="hover">
+              <div className="why-icon-wrapper">{item.icon}</div>
+              <div className="why-content">
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+
+
+const FAQAccordion = () => {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const faqs = [
+    {
+      q: 'What types of nutraceutical formulations do you manufacture?',
+      a: 'We specialize in Effervescent Tablets, Hard Gelatin Capsules, Protein & Dietary Powders, Standard Tablets, Chewables, and custom powder sachets.',
+    },
+    {
+      q: 'What is your Minimum Order Quantity (MOQ)?',
+      a: 'We offer scalable MOQs tailored to your product format and formulation requirements, catering to both pilot product launches and large commercial runs.',
+    },
+    {
+      q: 'Are your manufacturing facilities certified?',
+      a: 'Yes, our production facility in Ahmedabad operates in full compliance with WHO-GMP, ISO 9001:2015, ISO 22000:2018, HACCP, and FSSAI standards.',
+    },
+    {
+      q: 'Can you develop custom formulations for our brand?',
+      a: 'Absolutely. Our in-house R&D team can formulate bespoke supplement blends, flavor profiles, and active delivery systems based on your exact specifications.',
+    },
+    {
+      q: 'What is the standard production and delivery lead time?',
+      a: 'Standard production turnarounds are typically 3 to 6 weeks following formula approval, raw material testing, and artwork finalization.',
+    },
+    {
+      q: 'Do you provide regulatory and packaging support?',
+      a: 'Yes, we offer complete support for regulatory compliance documentation, label verification, artwork layout, and custom packaging solutions.',
+    },
+  ];
+
+  const toggleFAQ = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <section id="faq" className="section-soft section-pad faq-section">
+      <div className="container">
+        <ScrollReveal style={{ marginBottom: '3rem', textAlign: 'center' }}>
+          <h4 className="text-label" style={{ marginBottom: '0.75rem' }}>Got Questions?</h4>
+          <h2 className="responsive-section-title" style={{ maxWidth: '640px', margin: '0 auto' }}>
+            Frequently Asked Questions
+          </h2>
+          <p className="lead-text" style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '0.8rem auto 0' }}>
+            Everything you need to know about our contract manufacturing process, certifications, and capabilities.
+          </p>
+        </ScrollReveal>
+
+        <div className="faq-container">
+          {faqs.map((faq, i) => {
+            const isOpen = openIndex === i;
+            return (
+              <ScrollReveal key={i}>
+                <div className={`faq-item ${isOpen ? 'open' : ''}`}>
+                  <button
+                    type="button"
+                    className="faq-question-btn"
+                    onClick={() => toggleFAQ(i)}
+                    aria-expanded={isOpen}
+                  >
+                    <span>{faq.q}</span>
+                    <span className="faq-toggle-icon">
+                      <ChevronDown size={20} className={`chevron ${isOpen ? 'rotate' : ''}`} />
+                    </span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        className="faq-answer-wrapper"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <p className="faq-answer">{faq.a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </ScrollReveal>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -560,8 +798,10 @@ const Footer = () => (
           <h4 className="footer-title">Explorer</h4>
           <ul className="footer-links-list">
             <li><a href="#home" onClick={(e) => { e.preventDefault(); document.getElementById('home').scrollIntoView({ behavior: 'smooth' }) }}>Home</a></li>
+            <li><a href="#services" onClick={(e) => { e.preventDefault(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' }) }}>Services</a></li>
             <li><Link to="/products">Products</Link></li>
             <li><a href="#about" onClick={(e) => { e.preventDefault(); document.getElementById('about').scrollIntoView({ behavior: 'smooth' }) }}>About Us</a></li>
+            <li><a href="#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq').scrollIntoView({ behavior: 'smooth' }) }}>FAQ</a></li>
             <li><a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) }}>Contact</a></li>
           </ul>
         </div>
@@ -618,12 +858,15 @@ const Home = () => {
   return (
     <>
       <HeroSlider />
+      <ServicesGrid />
       <Capabilities />
       <Certificates />
       <div id="about">
         <About />
       </div>
+      <WhyChooseUs />
       <ManufacturingProcess />
+      <FAQAccordion />
       <div id="contact">
         <ContactSection />
       </div>

@@ -78,6 +78,16 @@ canvas {
 
 /* Grids collapse */
 @media (max-width: 1024px) {
+  .services-grid,
+  .why-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+
   .grid-3 {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
@@ -220,6 +230,22 @@ canvas {
 
   .nav-overlay {
     display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .services-grid,
+  .why-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .why-card {
+    flex-direction: column;
   }
 }
 
